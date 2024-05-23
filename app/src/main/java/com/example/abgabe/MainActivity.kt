@@ -26,6 +26,9 @@ class MainActivity : ComponentActivity(), Renderer {
         enableEdgeToEdge()
         setContent {
             AbgabeTheme {
+
+
+
                 AndroidView(
                     factory = { context ->
                         GLSurfaceView(context).apply {
@@ -37,6 +40,10 @@ class MainActivity : ComponentActivity(), Renderer {
                         }
                     }
                 )
+
+                /*
+                FeatureThatRequiresCameraPermission()
+                 */
             }
         }
     }
@@ -56,7 +63,6 @@ class MainActivity : ComponentActivity(), Renderer {
 
 
 /*
-
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun FeatureThatRequiresCameraPermission() {
