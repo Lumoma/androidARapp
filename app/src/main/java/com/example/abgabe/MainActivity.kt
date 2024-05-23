@@ -26,9 +26,6 @@ class MainActivity : ComponentActivity(), Renderer {
         enableEdgeToEdge()
         setContent {
             AbgabeTheme {
-
-
-
                 AndroidView(
                     factory = { context ->
                         GLSurfaceView(context).apply {
@@ -49,15 +46,18 @@ class MainActivity : ComponentActivity(), Renderer {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        TODO("Not yet implemented")
+        // Set the background color to black
+        gl?.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        TODO("Not yet implemented")
+        // Set the viewport to the entire surface
+        gl?.glViewport(0, 0, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        TODO("Not yet implemented")
+        // Clear the surface
+        gl?.glClear(GL10.GL_COLOR_BUFFER_BIT)
     }
 }
 
