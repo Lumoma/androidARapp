@@ -2,7 +2,6 @@ package com.example.abgabe.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.serialization.Serializable
 
 @Entity
 data class Cat(

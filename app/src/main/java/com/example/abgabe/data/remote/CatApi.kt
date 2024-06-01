@@ -1,8 +1,6 @@
 package com.example.abgabe.data.remote
 
-import com.example.abgabe.data.local.Cat
 import io.ktor.client.*
-import io.ktor.client.call.body
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText

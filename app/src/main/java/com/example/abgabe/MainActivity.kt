@@ -81,7 +81,6 @@ class MainActivity : ComponentActivity(), Renderer {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-
                     NavHost(navController, startDestination = "API") {
                         composable("API") {
                             homeScreenViewModel.HomeScreen(
