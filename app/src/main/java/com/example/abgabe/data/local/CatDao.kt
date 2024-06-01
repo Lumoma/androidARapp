@@ -7,23 +7,22 @@ import androidx.room.Query
 
 @Dao
 interface CatDao {
-    @Query("SELECT * FROM catApiData")
-    fun getAll(): List<CatApiData>
+    @Query("SELECT * FROM cat")
+    fun getAll(): List<Cat>
 
-    @Query("SELECT * FROM catApiData WHERE id = :id")
-    fun getById(id: Int): CatApiData
+    @Query("SELECT * FROM cat WHERE id = :id")
+    fun getById(id: Int): Cat
 
-    /*
-    @Query("SELECT * FROM catApiData WHERE name = :name")
-    fun getByName(name: String): CatApiData
-     */
 
-    @Insert
-    fun insert(cat: CatApiData)
+    @Query("SELECT * FROM cat WHERE name = :name")
+    fun getByName(name: String): Cat
 
     @Insert
-    fun insertAll(cats: List<CatApiData>)
+    fun insert(cat: Cat)
+
+    @Insert
+    fun insertAll(cats: List<Cat>)
 
     @Delete
-    fun delete(cat: CatApiData)
+    fun delete(cat: Cat)
 }

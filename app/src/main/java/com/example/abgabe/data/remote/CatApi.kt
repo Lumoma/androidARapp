@@ -1,35 +1,37 @@
 package com.example.abgabe.data.remote
 
-//CatApi.kt: Ein Interface, das die Endpunkte der API definiert. Es verwendet Retrofit-Annotationen, um die HTTP-Methoden (GET, POST usw.) und die Endpunkt-Pfade anzugeben.
-
-import com.example.abgabe.data.local.AppDatabase
-import com.example.abgabe.data.local.CatApiData
+import com.example.abgabe.data.local.Cat
 import io.ktor.client.*
+import io.ktor.client.call.body
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
-import kotlinx.serialization.decodeFromString
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 
 val client = HttpClient(CIO)
 
-suspend fun getCat(): String {
+suspend fun getOneCat(): String {
     val url = "https://api.thecatapi.com/v1/images/search"
-    return client.get(url).bodyAsText()
-
-}
-
-suspend fun insertCatFromApiToDb(roomDatabase: AppDatabase) {
-    // 1. Rufen Sie die API auf und erhalten Sie die Antwort.
-    val catJson = getCat()
-
-    // 2. Konvertieren Sie die Antwort in ein `Cat`-Objekt.
-    // Angenommen, die API-Antwort hat das gleiche Format wie die `Cat`-Klasse.
-    val catApiResponse = Json.decodeFromString<CatApiData>(catJson)
-
-    // 3. Fügen Sie das `Cat`-Objekt in die Datenbank ein.
-    val catDao = roomDatabase.catDao()
-    catDao.insert(catApiResponse)
+    val response = client.get(url).bodyAsText()
+    return if (response.startsWith("[") && response.endsWith("]")) {
+        response.substring(1, response.length - 1)
+    } else {
+        response
+    }
 }
 
 
+suspend fun getTenCats(): List<CatApiData> {
+    val url = "https://api.thecatapi.com/v1/images/search?limit=10"
+    val response = client.get(url)
+
+    if (response.status.isSuccess()) {
+        val json = Json { ignoreUnknownKeys = true }
+        val catApiStringWithBrackets = "[$response]"
+        val catApiData = Json.decodeFromString<List<CatApiData>>(catApiStringWithBrackets)
+        return json.decodeFromString<List<CatApiData>>(catApiData.toString())
+    } else {
+        throw Exception("Error fetching cats: ${response.status}")
+    }
+}

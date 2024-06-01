@@ -28,6 +28,7 @@ import com.example.abgabe.ar.common.helpers.TrackingStateHelper
 import com.example.abgabe.ar.common.rendering.AugmentedImageRenderer
 import com.example.abgabe.ar.common.rendering.BackgroundRenderer
 import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.DetailScreen
 import com.example.abgabe.ui.views.HomeScreen
@@ -52,6 +53,7 @@ private val augmentedImageMap: MutableMap<Int, Pair<AugmentedImage, Anchor>> = m
 class MainActivity : ComponentActivity(), Renderer {
     private val homeScreenViewModel: HomeScreen by viewModels()
     private val detailScreenViewModel: DetailScreen by viewModels()
+    private val catGenerator = CatGenerator()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity(), Renderer {
                             )
                         }
                         composable("Database") {
-                            detailScreenViewModel.DisplayCatJson(db)
+                            detailScreenViewModel.DisplayCatJson(db, catGenerator)
                         }
                     }
                 }

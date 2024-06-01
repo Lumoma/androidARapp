@@ -2,11 +2,11 @@ package com.example.abgabe.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.UUID
+import kotlinx.serialization.Serializable
 
-/*
+@Entity
 data class Cat(
-    @PrimaryKey val id: UUID = UUID.randomUUID(), //used by the QR Code
+    @PrimaryKey val id: String, //used by the QR Code
     val name: String,
     val breed: String,
     val temperament: String,
@@ -16,15 +16,4 @@ data class Cat(
 
     //Bonus
     //weitere Eigenschaften
-)
-
- */
-
-@Entity
-data class CatApiData(
-    @PrimaryKey
-    val id: String,
-    val url: String,
-    val width: Int,
-    val height: Int
 )

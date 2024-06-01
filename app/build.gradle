@@ -5,6 +5,7 @@ plugins {
     id 'androidx.room'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
 
 }
 
@@ -111,7 +112,8 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
 
-    implementation libs.kotlinx.serialization.json
+    //Kotlinx Serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
 }
 
 kapt {
