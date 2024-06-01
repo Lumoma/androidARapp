@@ -25,4 +25,7 @@ interface CatDao {
 
     @Delete
     fun delete(cat: Cat)
+
+    @Query("DELETE FROM cat")
+    fun deleteAll()
 }
