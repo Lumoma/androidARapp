@@ -1,53 +1,57 @@
 package com.example.abgabe.ui.views
 
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Box
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.lifecycle.ViewModel
+import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.data.local.CatDao
+import com.example.abgabe.data.remote.insertCatFromApiToDb
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
-data class Cat(
-    val id: Int = 0,
-    val name: String,
-    val breed: String,
-    val imageUrl: String,
-    // ... weitere Eigenschaften
-)
+class HomeScreen(): ViewModel(){
+    private val internalTextFlow = MutableStateFlow<String?>(null)
 
-
+  @SuppressLint("NotConstructor")
 @Composable
 fun HomeScreen(
-    navController: NavController
-) {
-    val cats = listOf( // Beispiel-Katzenliste
-        Cat(1, "Whiskers", "Siamese", "https://cdn2.thecatapi.com/images/MTg0NjE0OQ.jpg"),
-        Cat(2, "Mittens", "Persian", "https://cdn2.thecatapi.com/images/abys.jpg"),
-        Cat(3, "Oliver", "Maine Coon", "https://cdn2.thecatapi.com/images/MTgzOTI4Nw.jpg")
-    )
+      onNavigateToAR: () -> Unit,
+      onNavigateToDatabase: () -> Unit,
+      modifier: Modifier = Modifier,
+  ) {
+        var showDatabase by remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(scrollState)
+        ){
+            Text("hello")
+            Button(onClick = { onNavigateToAR() }) {
+                Text("Go to AR")
+            }
+            Button(onClick = { onNavigateToDatabase() }) {
+                Text("Create Database")
+            }
+        }
     }
-}
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-
 }

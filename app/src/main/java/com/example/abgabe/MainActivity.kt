@@ -1,22 +1,36 @@
 package com.example.abgabe
 
+import android.content.pm.PackageManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.GLSurfaceView.Renderer
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
+import android.Manifest
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import com.example.abgabe.ar.common.helpers.DisplayRotationHelper
 import com.example.abgabe.ar.common.helpers.SnackbarHelper
 import com.example.abgabe.ar.common.helpers.TrackingStateHelper
 import com.example.abgabe.ar.common.rendering.AugmentedImageRenderer
 import com.example.abgabe.ar.common.rendering.BackgroundRenderer
+import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.ui.theme.AbgabeTheme
+import com.example.abgabe.ui.views.DetailScreen
+import com.example.abgabe.ui.views.HomeScreen
 import com.google.ar.core.Anchor
 import com.google.ar.core.AugmentedImage
 import com.google.ar.core.Frame
@@ -36,8 +50,18 @@ private val augmentedImageMap: MutableMap<Int, Pair<AugmentedImage, Anchor>> = m
 
 
 class MainActivity : ComponentActivity(), Renderer {
+    private val homeScreenViewModel: HomeScreen by viewModels()
+    private val detailScreenViewModel: DetailScreen by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "cat-db-name")
+            .build()
+
+        // Kameraberechtigung zur Laufzeit anfordern
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
+        }
 
         displayRotationHelper = DisplayRotationHelper(this)
         backgroundRenderer = BackgroundRenderer()
@@ -50,18 +74,41 @@ class MainActivity : ComponentActivity(), Renderer {
         enableEdgeToEdge()
         setContent {
             AbgabeTheme {
-                AndroidView(
-                    factory = { context ->
-                        GLSurfaceView(context).apply {
-                            preserveEGLContextOnPause = true
-                            setEGLContextClientVersion(2)
-                            setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-                            setRenderer(this@MainActivity)
-                            renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+
+                    NavHost(navController, startDestination = "API") {
+                        composable("API") {
+                            homeScreenViewModel.HomeScreen(
+                                onNavigateToAR = {
+                                    navController.navigate("AR")
+                                },
+                                onNavigateToDatabase = {
+                                    navController.navigate("Database")
+                                },
+                            )
+                        }
+                        composable("AR") {
+                            AndroidView(
+                                factory = { context ->
+                                    GLSurfaceView(context).apply {
+                                        preserveEGLContextOnPause = true
+                                        setEGLContextClientVersion(2)
+                                        setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+                                        setRenderer(this@MainActivity)
+                                        renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+                                    }
+                                }
+                            )
+                        }
+                        composable("Database") {
+                            detailScreenViewModel.DisplayCatJson(db)
                         }
                     }
-                )
-
+                }
                 /*
                 FeatureThatRequiresCameraPermission()
                  */
@@ -187,7 +234,10 @@ class MainActivity : ComponentActivity(), Renderer {
             }
         }
     }
+
 }
+
+
 
 
 

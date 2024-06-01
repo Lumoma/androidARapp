@@ -1,16 +1,29 @@
 package com.example.abgabe.data.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CatDao {
-    @Query("SELECT * FROM cat")
-    fun getAllCats(): Flow<List<Cat>>
+    @Query("SELECT * FROM catApiData")
+    fun getAll(): List<CatApiData>
+
+    @Query("SELECT * FROM catApiData WHERE id = :id")
+    fun getById(id: Int): CatApiData
+
+    /*
+    @Query("SELECT * FROM catApiData WHERE name = :name")
+    fun getByName(name: String): CatApiData
+     */
 
     @Insert
-    suspend fun insertCat(cat: Cat)
+    fun insert(cat: CatApiData)
 
+    @Insert
+    fun insertAll(cats: List<CatApiData>)
+
+    @Delete
+    fun delete(cat: CatApiData)
 }

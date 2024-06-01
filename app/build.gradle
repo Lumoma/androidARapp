@@ -1,7 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id "org.jetbrains.kotlin.kapt"
+    id 'com.google.devtools.ksp'
+    id 'androidx.room'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 
 }
 
@@ -46,6 +49,10 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+
+    room {
+        schemaDirectory "$projectDir/schemas"
+    }
 }
 
 dependencies {
@@ -58,6 +65,7 @@ dependencies {
     implementation libs.androidx.material3
     implementation libs.androidx.navigation.runtime.ktx
     implementation libs.material
+    implementation libs.androidx.navigation.compose
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
@@ -65,11 +73,6 @@ dependencies {
     androidTestImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    annotationProcessor(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
 
     // Retrofit und Gson
     implementation(libs.retrofit)
@@ -86,17 +89,31 @@ dependencies {
     implementation(libs.coil.compose)
 
     //Dependency Injection
-    implementation 'com.google.dagger:hilt-android:2.51.1'
-    kapt 'com.google.dagger:hilt-compiler:2.51.1'
+    implementation "com.google.dagger:hilt-android:2.44"
+    kapt "com.google.dagger:hilt-compiler:2.44"
 
     // For instrumentation tests
-    androidTestImplementation  'com.google.dagger:hilt-android-testing:2.51.1'
-    androidTestAnnotationProcessor 'com.google.dagger:hilt-compiler:2.51.1'
+    androidTestImplementation  libs.hilt.android.testing
+    androidTestAnnotationProcessor libs.hilt.compiler
 
-    // For local unit tests
-    testImplementation 'com.google.dagger:hilt-android-testing:2.51.1'
-    testAnnotationProcessor 'com.google.dagger:hilt-compiler:2.51.1'
+
+    def room_version = "2.6.1"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    kapt "androidx.room:room-compiler:$room_version"
 
     //AR
-    implementation 'de.javagl:obj:0.4.0'
+    implementation libs.obj
+
+    //Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+
+    implementation libs.kotlinx.serialization.json
+}
+
+kapt {
+    correctErrorTypes true
 }
