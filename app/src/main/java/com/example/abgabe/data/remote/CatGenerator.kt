@@ -5,6 +5,8 @@ import com.example.abgabe.data.local.Cat
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
+//https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=live_RhoeIS1CZSQxrEYGaUiRbmNCGUsUvBrqJsml10ApSBodOteF8DtYzIyE0kthZ6jM
+
 @Serializable
 data class CatApiData(
     @PrimaryKey
