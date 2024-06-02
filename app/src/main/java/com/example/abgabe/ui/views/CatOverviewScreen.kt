@@ -1,5 +1,6 @@
 package com.example.abgabe.ui.views
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import coil.compose.AsyncImage
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
 import com.example.abgabe.data.remote.CatApiData
@@ -95,6 +97,11 @@ class CatOverviewScreen(): ViewModel(){
 
             items(cats) { cat ->
                 //Text(cat.name)
+                AsyncImage(
+                    model = cat.imageUrl,
+                    contentDescription = "Cat Image",
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Text(cat.imageUrl)
 
                 /*
