@@ -17,9 +17,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
+import com.example.abgabe.data.remote.CatApiData
 import com.example.abgabe.data.remote.CatGenerator
+import com.example.abgabe.data.remote.client
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
 class CatOverviewScreen(): ViewModel(){
 
@@ -38,18 +44,23 @@ class CatOverviewScreen(): ViewModel(){
         var existentDatabase by remember { mutableStateOf(false) }
 
         if (updateDatabase) {
-            LaunchedEffect(key1 = Unit) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    // Überprüfen, ob die Datenbank bereits Bilder enthält
-                    val existingCats = catDatabase.catDao().getAll()
-                    if (existingCats.isEmpty()) {
-                        // Wenn die Datenbank leer ist, fügen Sie neue Bilder hinzu
-                        val newCats = catGenerator.getTenRandomCats()
-                        // Fügen Sie die Bilder in die Datenbank ein
-                        catDatabase.catDao().insertTen(newCats)
-                        cats = newCats
-                    }
-                    updateDatabase = false
+    LaunchedEffect(key1 = Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val newCats = catGenerator.getTenRandomCats()
+            newCats.forEach { catDatabase.catDao().insert(it) }
+                cats = newCats
+            }
+            updateDatabase = false
+            existentDatabase = true
+        }
+    }
+
+
+    if (existentDatabase) {
+        LaunchedEffect(key1 = Unit) {
+            coroutineScope.launch(Dispatchers.IO) {
+                val catsFromDatabase = catDatabase.catDao().getAll()
+                    cats = catsFromDatabase
                 }
             }
         }
