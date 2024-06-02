@@ -1,11 +1,7 @@
 package com.example.abgabe
 
 import android.content.pm.PackageManager
-import android.opengl.GLES20
-import android.opengl.GLSurfaceView
-import android.opengl.GLSurfaceView.Renderer
 import android.os.Bundle
-import android.util.Log
 import android.Manifest
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,12 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
-import com.example.abgabe.ar.common.helpers.DisplayRotationHelper
-import com.example.abgabe.ar.common.helpers.SnackbarHelper
-import com.example.abgabe.ar.common.helpers.TrackingStateHelper
 import com.example.abgabe.ar.common.rendering.ARScreenFactory
-import com.example.abgabe.ar.common.rendering.AugmentedImageRenderer
-import com.example.abgabe.ar.common.rendering.BackgroundRenderer
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
@@ -36,14 +27,6 @@ import com.example.abgabe.ui.views.DetailScreen
 import com.example.abgabe.ui.views.CatOverviewScreen
 import com.example.abgabe.ui.views.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsScreen
-import com.google.ar.core.Anchor
-import com.google.ar.core.AugmentedImage
-import com.google.ar.core.Frame
-import com.google.ar.core.Session
-import com.google.ar.core.TrackingState
-import java.io.IOException
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 
 class MainActivity : ComponentActivity() {
 
@@ -57,7 +40,6 @@ class MainActivity : ComponentActivity() {
     // AR
     private lateinit var arScreen: ARScreen
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "cat-db-name")
@@ -67,7 +49,6 @@ class MainActivity : ComponentActivity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
         }
-
 
         val arScreenFactory = ARScreenFactory()
         arScreen = arScreenFactory.createARScreen(this)
@@ -113,9 +94,9 @@ class MainActivity : ComponentActivity() {
                         composable("Settings") {
                             settingsScreenViewModel.ClearDatabase(db = db)
                         }
-                        composable("Detail/{id}") { backStackEntry ->
-                            val id = backStackEntry.arguments?.getString("id")
-                            detailScreenViewModel.DetailScreen(id = id!!, db = db)
+                        composable("Detail/{id}") {
+                            val id = navController.currentBackStackEntry?.arguments?.getString("id")
+                            detailScreenViewModel.DetailScreen(id = id, db = db)
                         }
                     }
                 }

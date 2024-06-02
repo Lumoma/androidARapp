@@ -49,7 +49,7 @@ class RandomCatScreen: ViewModel() {
             if (updateDatabase) {
                 LaunchedEffect(key1 = Unit) {
                     coroutineScope.launch(Dispatchers.IO) {
-                        val newCat = catGenerator.getOneRandomCat()
+                        val newCat = catGenerator.getCatInfo()
                         newCat.let { catDatabase.catDao().insert(it) }
                         cat = newCat
                         updateDatabase = false

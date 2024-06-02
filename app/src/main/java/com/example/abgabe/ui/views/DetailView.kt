@@ -24,18 +24,23 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class DetailScreen: ViewModel(){
 
     @SuppressLint("NotConstructor")
     @Composable
-    fun DetailScreen(id: String, db: AppDatabase) {
+    fun DetailScreen(id: String?, db: AppDatabase) {
         val coroutineScope = rememberCoroutineScope()
         var cat by remember { mutableStateOf<Cat?>(null) }
 
         LaunchedEffect(key1 = Unit) {
             coroutineScope.launch(Dispatchers.IO) {
-                cat = db.catDao().getById(id)
+                val uuidString: String? = id
+                if (uuidString != null) {
+                    val uuid: UUID? = UUID.fromString(uuidString)
+                    uuid?.let { cat = db.catDao().getById(it) }
+                }
             }
         }
         cat?.let {
@@ -50,11 +55,14 @@ class DetailScreen: ViewModel(){
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            Text("ID: ${cat.id}")
             Text("Name: ${cat.name}")
             Text("Breed: ${cat.breed}")
             Text("Temperament: ${cat.temperament}")
             Text("Origin: ${cat.origin}")
             Text("Life Expectancy: ${cat.lifeExpectancy}")
+            Text("Picture URL: ${cat.imageUrl}")
+            Text("QR Code ID: ${cat.qrCodeID}")
             Card(
                 modifier = Modifier
                     .padding(4.dp)

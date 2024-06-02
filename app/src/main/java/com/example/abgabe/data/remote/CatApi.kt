@@ -10,20 +10,14 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
 val client = HttpClient(CIO)
+val apiKey = "live_RhoeIS1CZSQxrEYGaUiRbmNCGUsUvBrqJsml10ApSBodOteF8DtYzIyE0kthZ6jM"
 
 suspend fun getOneCat(): String {
-    val url = "https://api.thecatapi.com/v1/images/search"
-    val response = client.get(url).bodyAsText()
-    return if (response.startsWith("[") && response.endsWith("]")) {
-        response.substring(1, response.length - 1)
-    } else {
-        response
-    }
+    val url = "https://api.thecatapi.com/v1/images/search?limit=1&has_breeds=1&api_key=$apiKey"
+    return client.get(url).bodyAsText()
 }
 
-
-suspend fun getTenCats(): List<CatApiData> {
-    val url = "https://api.thecatapi.com/v1/images/search?limit=10"
-    val response = client.get(url).bodyAsText()
-    return Json.decodeFromString(ListSerializer(CatApiData.serializer()), response)
+suspend fun getTenCats(): String {
+    val url = "https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=$apiKey"
+    return client.get(url).bodyAsText()
 }

@@ -29,6 +29,7 @@ import com.example.abgabe.data.local.Cat
 import com.example.abgabe.data.remote.CatGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class CatOverviewScreen(): ViewModel(){
 
@@ -50,7 +51,7 @@ class CatOverviewScreen(): ViewModel(){
         if (updateDatabase) {
             LaunchedEffect(key1 = Unit) {
                 coroutineScope.launch(Dispatchers.IO) {
-                    val newCats = catGenerator.getTenRandomCats()
+                    val newCats = catGenerator.getTenCatInfos()
                     newCats.forEach { catDatabase.catDao().insert(it) }
                     cats = newCats
                 }
@@ -86,7 +87,7 @@ class CatOverviewScreen(): ViewModel(){
             }
 
             ImageGrid(cats) { cat ->
-                onNavigateToDetail(cat.id)
+                onNavigateToDetail(cat.id.toString())
             }
         }
     }

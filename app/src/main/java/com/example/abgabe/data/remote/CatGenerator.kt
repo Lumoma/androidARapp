@@ -2,51 +2,66 @@ package com.example.abgabe.data.remote
 
 import androidx.room.PrimaryKey
 import com.example.abgabe.data.local.Cat
+import com.google.gson.internal.bind.TypeAdapters.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.util.UUID
 
-//https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=live_RhoeIS1CZSQxrEYGaUiRbmNCGUsUvBrqJsml10ApSBodOteF8DtYzIyE0kthZ6jM
+//https://api.thecatapi.com/v1/images/search?limit=1&has_breeds=1&api_key=live_RhoeIS1CZSQxrEYGaUiRbmNCGUsUvBrqJsml10ApSBodOteF8DtYzIyE0kthZ6jM
 
 @Serializable
 data class CatApiData(
-    @PrimaryKey
-    val id: String,
-    val url: String,
     val width: Int,
-    val height: Int
+    val height: Int,
+    val breeds: List<Breed>,
+    val url: String
+)
+
+@Serializable
+data class Breed(
+    val weight: Weight,
+    val id: String,
+    val name: String,
+    val temperament: String,
+    val origin: String,
+    val description: String,
+    val life_span: String,
+)
+
+@Serializable
+data class Weight(
+    val imperial: String,
+    val metric: String
 )
 
 class CatGenerator {
-    suspend fun getOneRandomCat(): Cat {
+    private val json = Json { ignoreUnknownKeys = true }
+
+    suspend fun getCatInfo(): Cat {
         val catApiString = getOneCat()
-        val catApiData = Json.decodeFromString<CatApiData>(catApiString)
-        return catApiData.let {
-            Cat(
-                id = it.id,
-                name = getRandomCatName(),
-                breed = getRandomCatBreeds(),
-                temperament = getRandomCatTemperament(),
-                origin = getRandomCatOrigin(),
-                lifeExpectancy = getRandomeCatLifeExpectancy(),
-                imageUrl = it.url
-            )
-        }
+        val catApiData = json.decodeFromString<CatApiData>(catApiString)
+        return convertToCat(catApiData)
     }
 
-    suspend fun getTenRandomCats(): List<Cat> {
-        val catApiList= getTenCats()
-        return catApiList.map {
-            Cat(
-                id = it.id,
-                name = getRandomCatName(),
-                breed = getRandomCatBreeds(),
-                temperament = getRandomCatTemperament(),
-                origin = getRandomCatOrigin(),
-                lifeExpectancy = getRandomeCatLifeExpectancy(),
-                imageUrl = it.url
-            )
-        }
+    suspend fun getTenCatInfos(): List<Cat> {
+        val catApiString = getTenCats()
+        val catApiDataList = json.decodeFromString<List<CatApiData>>(catApiString)
+        return catApiDataList.map { convertToCat(it) }
     }
+
+    private fun convertToCat(catApiData: CatApiData): Cat {
+        val breed = catApiData.breeds.firstOrNull()
+        return Cat(
+            name = getRandomCatName(),
+            breed = breed?.name?: getRandomCatBreeds(),
+            temperament = breed?.temperament?: getRandomCatTemperament(),
+            origin = breed?.origin?: getRandomCatOrigin(),
+            lifeExpectancy = breed?.life_span?: getRandomeCatLifeExpectancy().toString(),
+            imageUrl = catApiData.url,
+            qrCodeID = 0
+        )
+    }
+
 
     private fun getRandomCatName(): String {
         val catNames = listOf(

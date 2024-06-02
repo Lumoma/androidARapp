@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import java.util.UUID
 
 @Dao
 interface CatDao {
@@ -12,6 +13,9 @@ interface CatDao {
 
     @Query("SELECT * FROM cat WHERE id = :id")
     fun getById(id: String): Cat
+
+    @Query("SELECT * FROM cat WHERE id = :id")
+    fun getById(id: UUID): Cat
 
     @Query("SELECT * FROM cat WHERE name = :name")
     fun getByName(name: String): Cat

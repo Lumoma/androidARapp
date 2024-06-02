@@ -27,7 +27,7 @@ class SettingsScreen: ViewModel() {
             LaunchedEffect(key1 = Unit) {
                 coroutineScope.launch(Dispatchers.IO) {
                     withContext(Dispatchers.IO) {
-                        db.clearAllTables()
+                        db.catDao().deleteAll()
                         updateDatabase = false
                     }
                 }
