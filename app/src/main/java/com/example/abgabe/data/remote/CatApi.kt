@@ -5,6 +5,8 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
+import io.ktor.client.request.*
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
 val client = HttpClient(CIO)
@@ -22,14 +24,17 @@ suspend fun getOneCat(): String {
 
 suspend fun getTenCats(): List<CatApiData> {
     val url = "https://api.thecatapi.com/v1/images/search?limit=10"
-    val response = client.get(url)
+    val response = client.get(url).bodyAsText()
+    return Json.decodeFromString(ListSerializer(CatApiData.serializer()), response)
 
-    if (response.status.isSuccess()) {
-        val json = Json { ignoreUnknownKeys = true }
-        val catApiStringWithBrackets = "[$response]"
-        val catApiData = Json.decodeFromString<List<CatApiData>>(catApiStringWithBrackets)
-        return json.decodeFromString<List<CatApiData>>(catApiData.toString())
+    /*
+    val cleanedResponse = if (response.startsWith("[") && response.endsWith("]")) {
+        response.substring(1, response.length - 1)
     } else {
-        throw Exception("Error fetching cats: ${response.status}")
+        response
     }
+    return cleanedResponse.split("},{").map {
+        Json.decodeFromString<CatApiData>("{$it}")
+    }
+    */
 }

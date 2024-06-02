@@ -32,9 +32,8 @@ class CatGenerator {
     }
 
     suspend fun getTenRandomCats(): List<Cat> {
-        val catApiString = getTenCats()
-        val catApiData = Json.decodeFromString<List<CatApiData>>(catApiString.toString())
-        return catApiData.map {
+        val catApiList= getTenCats()
+        return catApiList.map {
             Cat(
                 id = it.id,
                 name = "Cat",

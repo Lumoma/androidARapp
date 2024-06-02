@@ -13,9 +13,11 @@ interface CatDao {
     @Query("SELECT * FROM cat WHERE id = :id")
     fun getById(id: Int): Cat
 
-
     @Query("SELECT * FROM cat WHERE name = :name")
     fun getByName(name: String): Cat
+
+    @Insert
+    fun insertTen(cat: List<Cat>)
 
     @Insert
     fun insert(cat: Cat)

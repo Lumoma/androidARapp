@@ -50,7 +50,7 @@ class DetailScreen: ViewModel() {
                 LaunchedEffect(key1 = Unit) {
                     coroutineScope.launch(Dispatchers.IO) {
                         val newCat = catGenerator.getOneRandomCat()
-                        newCat?.let { catDatabase.catDao().insert(it) }
+                        newCat.let { catDatabase.catDao().insert(it) }
                         cat = newCat
                         updateDatabase = false
                     }

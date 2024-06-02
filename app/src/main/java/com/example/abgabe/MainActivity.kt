@@ -31,7 +31,8 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.DetailScreen
-import com.example.abgabe.ui.views.HomeScreen
+import com.example.abgabe.ui.views.CatOverviewScreen
+import com.example.abgabe.ui.views.SettingsScreen
 import com.google.ar.core.Anchor
 import com.google.ar.core.AugmentedImage
 import com.google.ar.core.Frame
@@ -51,8 +52,9 @@ private val augmentedImageMap: MutableMap<Int, Pair<AugmentedImage, Anchor>> = m
 
 
 class MainActivity : ComponentActivity(), Renderer {
-    private val homeScreenViewModel: HomeScreen by viewModels()
+    private val homeScreenViewModel: CatOverviewScreen by viewModels()
     private val detailScreenViewModel: DetailScreen by viewModels()
+    private val settingsScreenViewModel: SettingsScreen by viewModels()
     private val catGenerator = CatGenerator()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +92,11 @@ class MainActivity : ComponentActivity(), Renderer {
                                 onNavigateToDatabase = {
                                     navController.navigate("Database")
                                 },
+                                onNavigateToSettings = {
+                                    navController.navigate("Settings")
+                                },
+                                catGenerator = catGenerator,
+                                catDatabase = db
                             )
                         }
                         composable("AR") {
@@ -107,6 +114,9 @@ class MainActivity : ComponentActivity(), Renderer {
                         }
                         composable("Database") {
                             detailScreenViewModel.DisplayCatJson(db, catGenerator)
+                        }
+                        composable("Settings") {
+                            settingsScreenViewModel.ClearDatabase(db = db)
                         }
                     }
                 }
