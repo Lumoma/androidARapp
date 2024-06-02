@@ -26,15 +26,4 @@ suspend fun getTenCats(): List<CatApiData> {
     val url = "https://api.thecatapi.com/v1/images/search?limit=10"
     val response = client.get(url).bodyAsText()
     return Json.decodeFromString(ListSerializer(CatApiData.serializer()), response)
-
-    /*
-    val cleanedResponse = if (response.startsWith("[") && response.endsWith("]")) {
-        response.substring(1, response.length - 1)
-    } else {
-        response
-    }
-    return cleanedResponse.split("},{").map {
-        Json.decodeFromString<CatApiData>("{$it}")
-    }
-    */
 }
