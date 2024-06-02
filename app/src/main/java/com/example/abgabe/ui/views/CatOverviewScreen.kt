@@ -29,7 +29,6 @@ import com.example.abgabe.data.local.Cat
 import com.example.abgabe.data.remote.CatGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class CatOverviewScreen(): ViewModel(){
 
@@ -43,28 +42,32 @@ class CatOverviewScreen(): ViewModel(){
         catDatabase: AppDatabase,
         modifier: Modifier = Modifier
     ) {
-        var cats by  remember {mutableStateOf(listOf<Cat>())}
         val coroutineScope = rememberCoroutineScope()
+        var cats by  remember {mutableStateOf(listOf<Cat>())}
         var updateDatabase by remember { mutableStateOf(false) }
-        var existentDatabase by remember { mutableStateOf(false) }
 
-        if (updateDatabase) {
-            LaunchedEffect(key1 = Unit) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    val newCats = catGenerator.getTenCatInfos()
-                    newCats.forEach { catDatabase.catDao().insert(it) }
-                    cats = newCats
+        //Check if database is empty
+        LaunchedEffect(key1 = Unit) {
+            coroutineScope.launch(Dispatchers.IO) {
+                val catsFromDatabase = catDatabase.catDao().getAll()
+                if (catsFromDatabase.isEmpty()) {
+                    updateDatabase = true
                 }
-                updateDatabase = false
-                existentDatabase = true
+                else {
+                    cats = catsFromDatabase
+                }
             }
         }
 
-        if (existentDatabase) {
+        //Create new Cats and update database
+        if (updateDatabase) {
             LaunchedEffect(key1 = Unit) {
                 coroutineScope.launch(Dispatchers.IO) {
-                    val catsFromDatabase = catDatabase.catDao().getAll()
-                    cats = catsFromDatabase
+                    catDatabase.catDao().deleteAll()
+                    val newCats = catGenerator.getTenCatInfos()
+                    newCats.forEach { catDatabase.catDao().insert(it) }
+                    cats = newCats
+                    updateDatabase = false
                 }
             }
         }
