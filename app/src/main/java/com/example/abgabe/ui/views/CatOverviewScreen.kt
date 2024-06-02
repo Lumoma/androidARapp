@@ -80,10 +80,10 @@ class CatOverviewScreen(): ViewModel(){
                 Text("Go to AR")
             }
             Button(onClick = { updateDatabase = true }) {
-                Text("Create Database")
+                Text("Create new Database")
             }
             Button(onClick = { onNavigateToDatabase() }) {
-                Text("Go to Database")
+                Text("Go to RandomCatGenerator")
             }
             Button(onClick = { onNavigateToSettings() }) {
                 Text("Settings")

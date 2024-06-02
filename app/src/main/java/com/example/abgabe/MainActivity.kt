@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("AR")
                                 },
                                 onNavigateToDatabase = {
-                                    navController.navigate("Database")
+                                    navController.navigate("RandomCatPictureGenerator")
                                 },
                                 onNavigateToSettings = {
                                     navController.navigate("Settings")
@@ -91,8 +91,8 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
-                        composable("Database") {
-                            randomCatScreen.DisplayCatJson(db, catGenerator)
+                        composable("RandomCatPictureGenerator") {
+                            randomCatScreen.DisplayCatJson(catGenerator)
                         }
                         composable("Settings") {
                             settingsScreenViewModel.ClearDatabase(db = db)

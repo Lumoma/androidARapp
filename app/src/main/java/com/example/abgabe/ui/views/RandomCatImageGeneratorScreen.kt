@@ -28,11 +28,10 @@ import kotlinx.coroutines.launch
 class RandomCatScreen: ViewModel() {
     @Composable
     fun DisplayCatJson(
-        catDatabase: AppDatabase,
        catGenerator: CatGenerator,
         modifier: Modifier = Modifier)
     {
-        var cat by remember { mutableStateOf<Cat?>(null) }
+        var  randomCat  by remember { mutableStateOf<Cat?>(null) }
         val coroutineScope = rememberCoroutineScope()
         var updateDatabase by remember { mutableStateOf(false) }
 
@@ -49,15 +48,13 @@ class RandomCatScreen: ViewModel() {
             if (updateDatabase) {
                 LaunchedEffect(key1 = Unit) {
                     coroutineScope.launch(Dispatchers.IO) {
-                        val newCat = catGenerator.getCatInfo()
-                        newCat.let { catDatabase.catDao().insert(it) }
-                        cat = newCat
+                        randomCat = catGenerator.getCatInfo().firstOrNull()
                         updateDatabase = false
                     }
                 }
             }
 
-            cat?.let { cat ->
+            randomCat?.let { cat ->
                 Image(
                     painter = rememberImagePainter(data = cat.imageUrl),
                     contentDescription = "Cat Image",
