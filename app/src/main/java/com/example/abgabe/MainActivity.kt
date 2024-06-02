@@ -32,6 +32,7 @@ import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.DetailScreen
 import com.example.abgabe.ui.views.CatOverviewScreen
+import com.example.abgabe.ui.views.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsScreen
 import com.google.ar.core.Anchor
 import com.google.ar.core.AugmentedImage
@@ -55,6 +56,7 @@ class MainActivity : ComponentActivity(), Renderer {
     private val homeScreenViewModel: CatOverviewScreen by viewModels()
     private val detailScreenViewModel: DetailScreen by viewModels()
     private val settingsScreenViewModel: SettingsScreen by viewModels()
+    private val randomCatScreen: RandomCatScreen by viewModels()
     private val catGenerator = CatGenerator()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,6 +97,9 @@ class MainActivity : ComponentActivity(), Renderer {
                                 onNavigateToSettings = {
                                     navController.navigate("Settings")
                                 },
+                                onNavigateToDetail = { id ->
+                                    navController.navigate("Detail/$id")
+                                },
                                 catGenerator = catGenerator,
                                 catDatabase = db
                             )
@@ -113,10 +118,14 @@ class MainActivity : ComponentActivity(), Renderer {
                             )
                         }
                         composable("Database") {
-                            detailScreenViewModel.DisplayCatJson(db, catGenerator)
+                            randomCatScreen.DisplayCatJson(db, catGenerator)
                         }
                         composable("Settings") {
                             settingsScreenViewModel.ClearDatabase(db = db)
+                        }
+                        composable("Detail/{id}") { backStackEntry ->
+                            val id = backStackEntry.arguments?.getString("id")
+                            detailScreenViewModel.DetailScreen(id = id!!, db = db)
                         }
                     }
                 }

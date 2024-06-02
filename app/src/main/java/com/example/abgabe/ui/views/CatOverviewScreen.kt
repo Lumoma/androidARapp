@@ -1,5 +1,6 @@
 package com.example.abgabe.ui.views
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,7 @@ class CatOverviewScreen(): ViewModel(){
         onNavigateToAR: () -> Unit,
         onNavigateToDatabase: () -> Unit,
         onNavigateToSettings: () -> Unit,
+        onNavigateToDetail: (String) -> Unit,
         catGenerator: CatGenerator,
         catDatabase: AppDatabase,
         modifier: Modifier = Modifier
@@ -83,39 +85,42 @@ class CatOverviewScreen(): ViewModel(){
                 Text("Settings")
             }
 
-            ImageGrid(cats.map { it.imageUrl })
+            ImageGrid(cats) { cat ->
+                onNavigateToDetail(cat.id)
+            }
         }
     }
 
-    @Composable
-    fun ImageGrid(imageUrls: List<String>) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // Anzahl der Spalten
-            contentPadding = PaddingValues(4.dp), // Padding um das Grid
-            content = {
-                items(imageUrls.size) { index ->
-                    ImageCard(imageUrl = imageUrls[index])
+        @Composable
+        fun ImageGrid(cats: List<Cat>, onClick: (Cat) -> Unit) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2), // Anzahl der Spalten
+                contentPadding = PaddingValues(4.dp), // Padding um das Grid
+                content = {
+                    items(cats.size) { index ->
+                        ImageCard(cat = cats[index], onClick = onClick)
+                    }
                 }
-            }
-        )
-    }
-
-    @Composable
-    fun ImageCard(imageUrl: String) {
-        Card(
-            modifier = Modifier
-                .padding(4.dp)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "Image from URL",
-                modifier = Modifier
-                    .height(150.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
             )
         }
-    }
+
+        @Composable
+        fun ImageCard(cat: Cat, onClick: (Cat) -> Unit) {
+            Card(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+                    .clickable(onClick = { onClick(cat) }),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                AsyncImage(
+                    model = cat.imageUrl,
+                    contentDescription = "Image from URL",
+                    modifier = Modifier
+                        .height(150.dp)
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
 }

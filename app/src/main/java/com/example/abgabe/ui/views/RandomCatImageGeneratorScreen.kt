@@ -25,7 +25,7 @@ import com.example.abgabe.data.remote.CatGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class DetailScreen: ViewModel() {
+class RandomCatScreen: ViewModel() {
     @Composable
     fun DisplayCatJson(
         catDatabase: AppDatabase,
