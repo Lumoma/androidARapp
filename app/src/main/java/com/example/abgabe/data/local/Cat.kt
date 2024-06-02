@@ -2,20 +2,29 @@ package com.example.abgabe.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.internal.bind.TypeAdapters
 import java.util.UUID
 
 @Entity
 data class Cat(
-    @PrimaryKey val id: UUID = UUID.randomUUID(),
+    @PrimaryKey val id: UUID,
     val name: String,
     val breed: String,
     val temperament: String,
     val origin: String,
     val lifeExpectancy: String,
     val imageUrl: String,
-    val qrCodeID: Int,
+    val qrCodeImage: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    //Bonus
-    //weitere Eigenschaften
-)
+        other as Cat
+
+        return qrCodeImage.contentEquals(other.qrCodeImage)
+    }
+
+    override fun hashCode(): Int {
+        return qrCodeImage.contentHashCode()
+    }
+}

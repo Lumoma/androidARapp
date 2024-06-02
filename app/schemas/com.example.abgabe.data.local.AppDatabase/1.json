@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9eef04cf1fa669241f35a13a242310c3",
+    "identityHash": "12744ddacdb0b0d419f04e45accbfe86",
     "entities": [
       {
         "tableName": "Cat",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `breed` TEXT NOT NULL, `temperament` TEXT NOT NULL, `origin` TEXT NOT NULL, `lifeExpectancy` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `qrCodeID` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `breed` TEXT NOT NULL, `temperament` TEXT NOT NULL, `origin` TEXT NOT NULL, `lifeExpectancy` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `qrCodeImage` BLOB NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -51,9 +51,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "qrCodeID",
-            "columnName": "qrCodeID",
-            "affinity": "INTEGER",
+            "fieldPath": "qrCodeImage",
+            "columnName": "qrCodeImage",
+            "affinity": "BLOB",
             "notNull": true
           }
         ],
@@ -70,7 +70,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9eef04cf1fa669241f35a13a242310c3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12744ddacdb0b0d419f04e45accbfe86')"
     ]
   }
 }

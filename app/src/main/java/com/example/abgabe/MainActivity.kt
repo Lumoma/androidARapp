@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "cat-db-name")
             .build()
 
+        /*
         // Kameraberechtigung zur Laufzeit anfordern
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
@@ -53,6 +54,8 @@ class MainActivity : ComponentActivity() {
         val arScreenFactory = ARScreenFactory()
         arScreen = arScreenFactory.createARScreen(this)
 
+
+         */
         //setContentView(R.layout.activity_main)
         //TODO: val fitToScanView: ImageView = findViewById(R.id.fit_to_scan_view)
         enableEdgeToEdge()

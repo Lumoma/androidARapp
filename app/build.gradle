@@ -84,7 +84,7 @@ dependencies {
     implementation libs.androidx.core.ktx
 
     // ZXing (QR-Code)
-    implementation(libs.core)
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
     // (Optional) Coil (Bildverarbeitung)
     implementation(libs.coil.compose)
@@ -117,6 +117,8 @@ dependencies {
 
     //Coil (Bildverarbeitung)
     implementation libs.coil.compose
+
+
 }
 
 kapt {
