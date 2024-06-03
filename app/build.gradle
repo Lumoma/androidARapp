@@ -1,12 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id 'com.google.devtools.ksp'
     id 'androidx.room'
     id 'kotlin-kapt'
-    id 'com.google.dagger.hilt.android'
+    id 'dagger.hilt.android.plugin'
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
-
 }
 
 android {
@@ -37,20 +35,20 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.1'
+        kotlinCompilerExtensionVersion '1.5.10'
     }
     packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-
     room {
         schemaDirectory "$projectDir/schemas"
     }
@@ -76,33 +74,36 @@ dependencies {
     debugImplementation libs.androidx.ui.test.manifest
 
     // Retrofit und Gson
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    implementation libs.converter.gson
 
     // ARCore
     implementation libs.android.ar.core
     implementation libs.androidx.core.ktx
 
     // ZXing (QR-Code)
-    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+    implementation libs.zxing.android.embedded
 
     // (Optional) Coil (Bildverarbeitung)
     implementation(libs.coil.compose)
 
     //Dependency Injection
-    implementation "com.google.dagger:hilt-android:2.44"
-    kapt "com.google.dagger:hilt-compiler:2.44"
 
-    // For instrumentation tests
-    androidTestImplementation  libs.hilt.android.testing
-    androidTestAnnotationProcessor libs.hilt.compiler
+    //Dagger - Hilt
+    implementation("com.google.dagger:hilt-android:2.46")
+    kapt("com.google.dagger:hilt-android-compiler:2.46")
 
+    // OPTIONAL: For instrumentation tests
+    androidTestImplementation  'com.google.dagger:hilt-android-testing:2.46'
+    kaptAndroidTest 'com.google.dagger:hilt-compiler:2.46'
 
+    // OPTIONAL: For local unit tests
+    testImplementation 'com.google.dagger:hilt-android-testing:2.46'
+    kaptTest 'com.google.dagger:hilt-compiler:2.46'
+
+    // Room
     def room_version = "2.6.1"
-
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
-
     kapt "androidx.room:room-compiler:$room_version"
 
     //AR
@@ -117,10 +118,10 @@ dependencies {
 
     //Coil (Bildverarbeitung)
     implementation libs.coil.compose
-
-
 }
 
+// Allow references to generated code
 kapt {
-    correctErrorTypes true
+    correctErrorTypes = true
 }
+

@@ -10,34 +10,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.Modifier
 import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.ui.states.SettingsUIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SettingsScreen: ViewModel() {
+object SettingsUI {
 
     @Composable
-    fun ClearDatabase(db: AppDatabase) {
-        val coroutineScope = rememberCoroutineScope()
-        var updateDatabase by remember { mutableStateOf(false) }
-
-        if (updateDatabase) {
-            LaunchedEffect(key1 = Unit) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    withContext(Dispatchers.IO) {
-                        db.catDao().deleteAll()
-                        updateDatabase = false
-                    }
-                }
-            }
-        }
-
+    fun HandleDatabaseContent(
+        uiState: SettingsUIState,
+        onNavigateToOverview: () -> Unit,
+        modifier: Modifier = Modifier
+    ) {
         Column {
-            Text(text = "Clear Database")
-            Button(onClick = { updateDatabase = true }) {
-                Text("Clear")
+            Text(text = "Settings")
+            Text(text = "Database")
+            Button(onClick = { TODO() }) {
+                Text("Dump Database")
+            }
+            Button(onClick = { TODO() }) {
+                Text("Fill Database")
             }
         }
     }

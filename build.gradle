@@ -2,6 +2,11 @@
 buildscript {
     dependencies {
         classpath(libs.gradle)
+        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.46'
+    }
+    repositories {
+        // other repositories...
+        mavenCentral()
     }
 }
 
@@ -10,6 +15,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false
     id 'com.google.devtools.ksp' version '1.8.10-1.0.9' apply false
     id 'androidx.room' version "$room_version" apply false
-    id 'com.google.dagger.hilt.android' version '2.44' apply false
+    id("com.google.dagger.hilt.android") version "2.46" apply false
 }
 
