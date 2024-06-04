@@ -18,11 +18,11 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.CatOverviewUI
-import com.example.abgabe.ui.views.DetailScreen
 import com.example.abgabe.viewmodels.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
 import com.example.abgabe.utils.QrCodeScanner
 import com.example.abgabe.viewmodels.CatOverviewViewModel
+import com.example.abgabe.viewmodels.DetailViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
     // ViewModels
     private val homeScreenViewModel: CatOverviewViewModel by viewModels()
-    private val detailScreenViewModel: DetailScreen by viewModels()
+    private val detailScreenViewModel: DetailViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val randomCatScreen: RandomCatScreen by viewModels()
     private val qrCodeScanner: QrCodeScanner by viewModels()
@@ -83,7 +83,6 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToDatabase = { navController.navigate("RandomCatPictureGenerator") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
-                                viewModel = homeScreenViewModel
                             )
                         }
                         composable("AR") {
@@ -100,7 +99,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")
-                            detailScreenViewModel.DetailScreen(id = id, db = db)
+                            detailScreenViewModel.DetailScreen(id = id)
                         }
                     }
                 }

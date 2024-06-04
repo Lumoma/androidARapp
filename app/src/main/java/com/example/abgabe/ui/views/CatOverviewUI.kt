@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.abgabe.data.local.Cat
 import com.example.abgabe.ui.states.CatOverviewUiState
-import com.example.abgabe.viewmodels.CatOverviewViewModel
 
 object CatOverviewUI {
 
@@ -32,7 +31,6 @@ object CatOverviewUI {
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
         modifier: Modifier = Modifier,
-        viewModel: CatOverviewViewModel // ViewModel hinzufügen
     ) {
         Column(
             modifier = modifier.padding(16.dp)

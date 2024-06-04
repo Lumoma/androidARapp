@@ -1,13 +1,10 @@
-package com.example.abgabe.ui.views
+package com.example.abgabe.viewmodels
 
-import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -27,16 +24,19 @@ import androidx.lifecycle.ViewModel
 import coil.compose.AsyncImage
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
-import com.google.gson.internal.bind.TypeAdapters
+import com.example.abgabe.data.remote.CatGenerator
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
+import javax.inject.Inject
 
-class DetailScreen: ViewModel(){
-
-    @SuppressLint("NotConstructor")
+@HiltViewModel
+class DetailViewModel @Inject constructor(
+    private val database: AppDatabase,
+) : ViewModel() {
     @Composable
-    fun DetailScreen(id: String?, db: AppDatabase) {
+    fun DetailScreen(id: String?) {
         val coroutineScope = rememberCoroutineScope()
         var cat by remember { mutableStateOf<Cat?>(null) }
 
@@ -45,7 +45,7 @@ class DetailScreen: ViewModel(){
                 val uuidString: String? = id
                 if (uuidString != null) {
                     val uuid: UUID? = UUID.fromString(uuidString)
-                    uuid?.let { cat = db.catDao().getById(it) }
+                    uuid?.let { cat = database.catDao().getById(it) }
                 }
             }
         }
