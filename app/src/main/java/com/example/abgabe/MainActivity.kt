@@ -1,6 +1,5 @@
 package com.example.abgabe
 
-import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,8 +17,8 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.DetailScreen
-import com.example.abgabe.ui.views.CatOverviewScreen
-import com.example.abgabe.ui.views.RandomCatScreen
+import com.example.abgabe.viewmodels.CatOverviewViewmodel
+import com.example.abgabe.viewmodels.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
 import com.example.abgabe.utils.QrCodeScanner
 import com.example.abgabe.viewmodels.SettingsViewModel
@@ -30,7 +29,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     // ViewModels
-    private val homeScreenViewModel: CatOverviewScreen by viewModels()
+    private val homeScreenViewModel: CatOverviewViewmodel by viewModels()
     private val detailScreenViewModel: DetailScreen by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val randomCatScreen: RandomCatScreen by viewModels()

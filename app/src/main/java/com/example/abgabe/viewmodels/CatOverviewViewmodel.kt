@@ -1,4 +1,4 @@
-package com.example.abgabe.ui.views
+package com.example.abgabe.viewmodels
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -26,11 +26,10 @@ import androidx.lifecycle.ViewModel
 import coil.compose.AsyncImage
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
-import com.example.abgabe.data.remote.CatGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class CatOverviewScreen(): ViewModel(){
+class CatOverviewViewmodel(): ViewModel(){
 
     @Composable
     fun HomeScreen(

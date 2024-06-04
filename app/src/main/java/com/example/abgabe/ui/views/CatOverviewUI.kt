@@ -10,12 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.abgabe.ui.states.CatOverviewScreenUiState
+import com.example.abgabe.ui.states.CatOverviewUiState
 
 object CatOverviewUI {
     @Composable
     fun CatOverviewContent(
-        state: CatOverviewScreenUiState,
+        state: CatOverviewUiState,
         modifier: Modifier = Modifier
     ) {
         Column(
@@ -24,36 +24,19 @@ object CatOverviewUI {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
-                CatOverviewScreenUiState.GeneratingCats -> {
-                    Text("Generating cats...")
-                }
-                CatOverviewScreenUiState.AccessingDatabase -> {
+                CatOverviewUiState.AccessingDatabase -> {
                     Text("Accessing database...")
                 }
-                CatOverviewScreenUiState.LoadingPictures -> {
+                CatOverviewUiState.LoadingPictures -> {
                     Text("Loading pictures...")
                 }
-                is CatOverviewScreenUiState.Content -> {
+                is CatOverviewUiState.Content -> {
                     Text(state.text)
                     Button(onClick = state.onLoadClicked) {
                         Text("Load")
                     }
                 }
             }
-        }
-    }
-
-    @Composable
-    fun GenerateCatsState(
-        modifier: Modifier = Modifier
-    ) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressIndicator(modifier = modifier)
-            Text("Generating cats...")
         }
     }
 
@@ -84,12 +67,6 @@ object CatOverviewUI {
             Text("Loading pictures...")
         }
     }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun CatOverviewContentPreview(modifier: Modifier = Modifier) {
-    CatOverviewUI.GenerateCatsState(modifier = modifier)
 }
 
 @Preview(showSystemUi = true)

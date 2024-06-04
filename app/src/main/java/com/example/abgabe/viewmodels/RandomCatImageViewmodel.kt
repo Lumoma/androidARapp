@@ -1,4 +1,4 @@
-package com.example.abgabe.ui.views
+package com.example.abgabe.viewmodels
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
