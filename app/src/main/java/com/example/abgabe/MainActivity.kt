@@ -1,5 +1,6 @@
 package com.example.abgabe
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,22 +11,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
-import com.example.abgabe.ui.views.ARScreen
 import com.example.abgabe.ui.views.DetailScreen
 import com.example.abgabe.ui.views.CatOverviewScreen
 import com.example.abgabe.ui.views.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
+import com.example.abgabe.utils.QrCodeScanner
 import com.example.abgabe.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,31 +34,35 @@ class MainActivity : ComponentActivity() {
     private val detailScreenViewModel: DetailScreen by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val randomCatScreen: RandomCatScreen by viewModels()
+    private val qrCodeScanner: QrCodeScanner by viewModels()
     private val catGenerator = CatGenerator()
-
 
     @Inject
     lateinit var db: AppDatabase
 
 
-
+    /*
     // AR
     private lateinit var arScreen: ARScreen
+
+
+     */
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         /*
-        // Kameraberechtigung zur Laufzeit anfordern
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
-        }
-
-        val arScreenFactory = ARScreenFactory()
-        arScreen = arScreenFactory.createARScreen(this)
+                // Kameraberechtigung zur Laufzeit anfordern
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
+                }
 
 
-         */
+                val arScreenFactory = ARScreenFactory()
+                arScreen = arScreenFactory.createARScreen(this)
+                */
+
+
         //setContentView(R.layout.activity_main)
         //TODO: val fitToScanView: ImageView = findViewById(R.id.fit_to_scan_view)
         enableEdgeToEdge()
@@ -86,22 +88,18 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToDetail = { id ->
                                     navController.navigate("Detail/$id")
                                 },
-                                catGenerator = catGenerator,
                                 catDatabase = db
                             )
                         }
                         composable("AR") {
-                            AndroidView(
-                                factory = { arScreen },
-                                modifier = Modifier.fillMaxSize()
-                            )
+                            
                         }
                         composable("RandomCatPictureGenerator") {
                             randomCatScreen.DisplayCatJson(catGenerator)
                         }
                         composable("Settings") {
                             val uiState = settingsViewModel.uiState.collectAsState()
-                            HandleDatabaseContent(uiState.value, onNavigateToOverview = {
+                            HandleDatabaseContent(viewModel = settingsViewModel, uiState = uiState.value, onNavigateToOverview = {
                                 navController.navigate("API")
                             })
                         }
@@ -118,7 +116,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 /*
 @OptIn(ExperimentalPermissionsApi::class)

@@ -1,4 +1,7 @@
 package com.example.abgabe.utils
 
-class QrCodeScanner {
+import androidx.lifecycle.ViewModel
+
+class QrCodeScanner: ViewModel() {
+
 }

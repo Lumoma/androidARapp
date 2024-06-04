@@ -38,7 +38,6 @@ class CatOverviewScreen(): ViewModel(){
         onNavigateToDatabase: () -> Unit,
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
-        catGenerator: CatGenerator,
         catDatabase: AppDatabase,
         modifier: Modifier = Modifier
     ) {
@@ -59,19 +58,6 @@ class CatOverviewScreen(): ViewModel(){
             }
         }
 
-        //Create new Cats and update database
-        if (updateDatabase) {
-            LaunchedEffect(key1 = Unit) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    catDatabase.catDao().deleteAll()
-                    val newCats = catGenerator.getTenCatInfos()
-                    newCats.forEach { catDatabase.catDao().insert(it) }
-                    cats = newCats
-                    updateDatabase = false
-                }
-            }
-        }
-
         Column(
             modifier = modifier.padding(16.dp)
         ) {
@@ -79,14 +65,15 @@ class CatOverviewScreen(): ViewModel(){
             Button(onClick = { onNavigateToAR() }) {
                 Text("Go to AR")
             }
-            Button(onClick = { updateDatabase = true }) {
-                Text("Create new Database")
-            }
             Button(onClick = { onNavigateToDatabase() }) {
                 Text("Go to RandomCatGenerator")
             }
             Button(onClick = { onNavigateToSettings() }) {
                 Text("Settings")
+            }
+
+            if (updateDatabase) {
+                    Text("Database is empty, go to settings to generate cats")
             }
 
             ImageGrid(cats) { cat ->

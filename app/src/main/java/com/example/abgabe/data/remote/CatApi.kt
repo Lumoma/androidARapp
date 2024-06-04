@@ -19,3 +19,8 @@ suspend fun getTenCats(): String {
     val url = "https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=$apiKey"
     return client.get(url).bodyAsText()
 }
+
+suspend fun getCats(amount: Int): String {
+    val url = "https://api.thecatapi.com/v1/images/search?limit=$amount&has_breeds=1&api_key=$apiKey"
+    return client.get(url).bodyAsText()
+}

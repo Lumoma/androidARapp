@@ -52,6 +52,12 @@ class CatGenerator {
         return catApiDataList.map { convertToCat(it) }
     }
 
+    suspend fun getCatInfos(amount: Int): List<Cat> {
+        val catApiString = getCats(amount)
+        val catApiDataList = json.decodeFromString<List<CatApiData>>(catApiString)
+        return catApiDataList.map { convertToCat(it) }
+    }
+
     private fun convertToCat(catApiData: CatApiData): Cat {
         val uuid = UUID.randomUUID()
         val breed = catApiData.breeds.firstOrNull()
