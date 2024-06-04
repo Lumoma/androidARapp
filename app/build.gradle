@@ -121,6 +121,9 @@ dependencies {
 
     //Coil (Bildverarbeitung)
     implementation libs.coil.compose
+
+    //Icons
+    implementation "androidx.compose.material:material-icons-extended:1.6.7"
 }
 
 // Allow references to generated code

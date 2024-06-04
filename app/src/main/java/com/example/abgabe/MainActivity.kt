@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToAR = { navController.navigate("AR") },
                                 onNavigateToDatabase = { navController.navigate("RandomCatPictureGenerator") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
-                                onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
+                                onNavigateToDetail = { id -> navController.navigate("Detail/$id") }
                             )
                         }
                         composable("AR") {

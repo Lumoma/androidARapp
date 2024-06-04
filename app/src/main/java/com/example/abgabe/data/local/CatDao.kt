@@ -24,6 +24,9 @@ interface CatDao {
     @Query("SELECT * FROM cat WHERE name = :name")
     fun getByName(name: String): Cat
 
+    @Query("SELECT id FROM cat ORDER BY RANDOM() LIMIT 1")
+    fun getRandomCatId(): UUID
+
     @Insert
     fun insertTen(cat: List<Cat>)
 
