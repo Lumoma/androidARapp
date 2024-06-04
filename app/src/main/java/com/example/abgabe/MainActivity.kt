@@ -18,11 +18,11 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.CatOverviewUI
-import com.example.abgabe.viewmodels.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
 import com.example.abgabe.utils.QrCodeScanner
 import com.example.abgabe.viewmodels.CatOverviewViewModel
 import com.example.abgabe.viewmodels.DetailViewModel
+import com.example.abgabe.viewmodels.RandomCatImageViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -34,37 +34,30 @@ class MainActivity : ComponentActivity() {
     private val homeScreenViewModel: CatOverviewViewModel by viewModels()
     private val detailScreenViewModel: DetailViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-    private val randomCatScreen: RandomCatScreen by viewModels()
-    private val qrCodeScanner: QrCodeScanner by viewModels()
-    private val catGenerator = CatGenerator()
+    private val randomCatScreen: RandomCatImageViewModel by viewModels()
+    //private val qrCodeScanner: QrCodeScanner by viewModels()
 
     @Inject
     lateinit var db: AppDatabase
 
-
     /*
     // AR
     private lateinit var arScreen: ARScreen
-
-
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         /*
-                // Kameraberechtigung zur Laufzeit anfordern
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
-                }
+            // Kameraberechtigung zur Laufzeit anfordern
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
+            }
+            val arScreenFactory = ARScreenFactory()
+            arScreen = arScreenFactory.createARScreen(this)
+            //setContentView(R.layout.activity_main)
+        */
 
-
-                val arScreenFactory = ARScreenFactory()
-                arScreen = arScreenFactory.createARScreen(this)
-                */
-
-
-        //setContentView(R.layout.activity_main)
         //TODO: val fitToScanView: ImageView = findViewById(R.id.fit_to_scan_view)
         enableEdgeToEdge()
         setContent {
@@ -86,10 +79,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("AR") {
-                            
+                            //TODO: arScreen.DisplayAR()
                         }
                         composable("RandomCatPictureGenerator") {
-                            randomCatScreen.DisplayCatJson(catGenerator)
+                            randomCatScreen.DisplayCatJson()
                         }
                         composable("Settings") {
                             val uiState = settingsViewModel.uiState.collectAsState()

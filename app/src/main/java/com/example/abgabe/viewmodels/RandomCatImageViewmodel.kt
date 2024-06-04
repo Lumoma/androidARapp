@@ -20,13 +20,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import coil.compose.rememberImagePainter
 import com.example.abgabe.data.remote.CatGenerator
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RandomCatScreen: ViewModel() {
+@HiltViewModel
+class RandomCatImageViewModel @Inject constructor(
+    private val catGenerator: CatGenerator
+) : ViewModel() {
     @Composable
     fun DisplayCatJson(
-       catGenerator: CatGenerator,
         modifier: Modifier = Modifier)
     {
         var  randomCatPictureUrl by remember { mutableStateOf<String?>(null) }
