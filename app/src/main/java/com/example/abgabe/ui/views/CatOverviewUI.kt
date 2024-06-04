@@ -1,39 +1,64 @@
 package com.example.abgabe.ui.views
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.abgabe.data.local.Cat
 import com.example.abgabe.ui.states.CatOverviewUiState
+import com.example.abgabe.viewmodels.CatOverviewViewModel
 
 object CatOverviewUI {
+
     @Composable
-    fun CatOverviewContent(
-        state: CatOverviewUiState,
-        modifier: Modifier = Modifier
+    fun Content(
+        uiState: CatOverviewUiState,
+        onNavigateToAR: () -> Unit,
+        onNavigateToDatabase: () -> Unit,
+        onNavigateToSettings: () -> Unit,
+        onNavigateToDetail: (String) -> Unit,
+        modifier: Modifier = Modifier,
+        viewModel: CatOverviewViewModel // ViewModel hinzufügen
     ) {
         Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = modifier.padding(16.dp)
         ) {
-            when (state) {
-                CatOverviewUiState.AccessingDatabase -> {
-                    Text("Accessing database...")
+            Text("Cat Overview")
+            Button(onClick = onNavigateToAR) {
+                Text("Go to AR")
+            }
+            Button(onClick = onNavigateToDatabase) {
+                Text("Go to RandomCatGenerator")
+            }
+            Button(onClick = onNavigateToSettings) {
+                Text("Settings")
+            }
+
+            when (uiState) {
+                CatOverviewUiState.Loading -> {
+                    CircularProgressIndicator()
+                    Text("Loading cats...")
                 }
-                CatOverviewUiState.LoadingPictures -> {
-                    Text("Loading pictures...")
+                CatOverviewUiState.EmptyDatabase -> {
+                    Text("Database is empty, go to settings to generate cats")
                 }
-                is CatOverviewUiState.Content -> {
-                    Text(state.text)
-                    Button(onClick = state.onLoadClicked) {
-                        Text("Load")
+                is CatOverviewUiState.Success -> {
+                    ImageGrid(uiState.cats) { cat ->
+                        onNavigateToDetail(cat.id.toString())
                     }
                 }
             }
@@ -41,43 +66,37 @@ object CatOverviewUI {
     }
 
     @Composable
-    fun AccessDatabaseState(
-        modifier: Modifier = Modifier
-    ) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressIndicator(modifier = modifier)
-            Text("Accessing database...")
-        }
+    fun ImageGrid(cats: List<Cat>, onClick: (Cat) -> Unit) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), // Anzahl der Spalten
+            contentPadding = PaddingValues(4.dp), // Padding um das Grid
+            content = {
+                items(cats.size) { index ->
+                    ImageCard(cat = cats[index], onClick = onClick)
+                }
+            }
+        )
     }
 
     @Composable
-    fun LoadPicturesState(
-        modifier: Modifier = Modifier
-    ) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+    fun ImageCard(cat: Cat, onClick: (Cat) -> Unit) {
+        Card(
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+                .clickable(onClick = { onClick(cat)}),
+            shape = RoundedCornerShape(8.dp)
         ) {
-            CircularProgressIndicator(modifier = modifier)
-            Text("Loading pictures...")
+            AsyncImage(
+                model = cat.imageUrl,
+                contentDescription = "Image from URL",
+                modifier = Modifier
+                    .height(150.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun GenerateCatsStatePreview(modifier: Modifier = Modifier) {
-    CatOverviewUI.AccessDatabaseState(modifier = modifier)
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun AccessDatabaseStatePreview(modifier: Modifier = Modifier) {
-    CatOverviewUI.LoadPicturesState(modifier = modifier)
-}
 

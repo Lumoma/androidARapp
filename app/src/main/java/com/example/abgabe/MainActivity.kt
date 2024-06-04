@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,11 +17,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
+import com.example.abgabe.ui.views.CatOverviewUI
 import com.example.abgabe.ui.views.DetailScreen
-import com.example.abgabe.viewmodels.CatOverviewViewmodel
 import com.example.abgabe.viewmodels.RandomCatScreen
 import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
 import com.example.abgabe.utils.QrCodeScanner
+import com.example.abgabe.viewmodels.CatOverviewViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -29,7 +31,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     // ViewModels
-    private val homeScreenViewModel: CatOverviewViewmodel by viewModels()
+    private val homeScreenViewModel: CatOverviewViewModel by viewModels()
     private val detailScreenViewModel: DetailScreen by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val randomCatScreen: RandomCatScreen by viewModels()
@@ -74,20 +76,14 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(navController, startDestination = "API") {
                         composable("API") {
-                            homeScreenViewModel.HomeScreen(
-                                onNavigateToAR = {
-                                    navController.navigate("AR")
-                                },
-                                onNavigateToDatabase = {
-                                    navController.navigate("RandomCatPictureGenerator")
-                                },
-                                onNavigateToSettings = {
-                                    navController.navigate("Settings")
-                                },
-                                onNavigateToDetail = { id ->
-                                    navController.navigate("Detail/$id")
-                                },
-                                catDatabase = db
+                            val uiState by homeScreenViewModel.uiState.collectAsState()
+                            CatOverviewUI.Content(
+                                uiState = uiState,
+                                onNavigateToAR = { navController.navigate("AR") },
+                                onNavigateToDatabase = { navController.navigate("RandomCatPictureGenerator") },
+                                onNavigateToSettings = { navController.navigate("Settings") },
+                                onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
+                                viewModel = homeScreenViewModel
                             )
                         }
                         composable("AR") {

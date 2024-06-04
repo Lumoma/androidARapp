@@ -23,94 +23,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
+import com.example.abgabe.ui.states.CatOverviewUiState
+import com.example.abgabe.ui.views.CatOverviewUI
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class CatOverviewViewmodel(): ViewModel(){
+@HiltViewModel
+class CatOverviewViewModel @Inject constructor(
+    private val catDatabase: AppDatabase
+) : ViewModel() {
 
-    @Composable
-    fun HomeScreen(
-        onNavigateToAR: () -> Unit,
-        onNavigateToDatabase: () -> Unit,
-        onNavigateToSettings: () -> Unit,
-        onNavigateToDetail: (String) -> Unit,
-        catDatabase: AppDatabase,
-        modifier: Modifier = Modifier
-    ) {
-        val coroutineScope = rememberCoroutineScope()
-        var cats by  remember {mutableStateOf(listOf<Cat>())}
-        var updateDatabase by remember { mutableStateOf(false) }
+    private val _uiState = MutableStateFlow<CatOverviewUiState>(CatOverviewUiState.Loading)
+    val uiState: StateFlow<CatOverviewUiState> = _uiState.asStateFlow()
 
-        //Check if database is empty
-        LaunchedEffect(key1 = Unit) {
-            coroutineScope.launch(Dispatchers.IO) {
-                val catsFromDatabase = catDatabase.catDao().getAll()
-                if (catsFromDatabase.isEmpty()) {
-                    updateDatabase = true
+    init {
+        loadCats()
+    }
+
+    private fun loadCats() {
+        viewModelScope.launch {
+            catDatabase.catDao().getAllAsFlow().collect { cats ->
+                _uiState.value = if (cats.isNotEmpty()) {
+                    CatOverviewUiState.Success(cats)
+                } else {
+                    CatOverviewUiState.EmptyDatabase
                 }
-                else {
-                    cats = catsFromDatabase
-                }
-            }
-        }
-
-        Column(
-            modifier = modifier.padding(16.dp)
-        ) {
-            Text("Hallo")
-            Button(onClick = { onNavigateToAR() }) {
-                Text("Go to AR")
-            }
-            Button(onClick = { onNavigateToDatabase() }) {
-                Text("Go to RandomCatGenerator")
-            }
-            Button(onClick = { onNavigateToSettings() }) {
-                Text("Settings")
-            }
-
-            if (updateDatabase) {
-                    Text("Database is empty, go to settings to generate cats")
-            }
-
-            ImageGrid(cats) { cat ->
-                onNavigateToDetail(cat.id.toString())
             }
         }
     }
-
-        @Composable
-        fun ImageGrid(cats: List<Cat>, onClick: (Cat) -> Unit) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2), // Anzahl der Spalten
-                contentPadding = PaddingValues(4.dp), // Padding um das Grid
-                content = {
-                    items(cats.size) { index ->
-                        ImageCard(cat = cats[index], onClick = onClick)
-                    }
-                }
-            )
-        }
-
-        @Composable
-        fun ImageCard(cat: Cat, onClick: (Cat) -> Unit) {
-            Card(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth()
-                    .clickable(onClick = { onClick(cat) }),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                AsyncImage(
-                    model = cat.imageUrl,
-                    contentDescription = "Image from URL",
-                    modifier = Modifier
-                        .height(150.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
 }

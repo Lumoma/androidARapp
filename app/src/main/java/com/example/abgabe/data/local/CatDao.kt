@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
 @Dao
@@ -13,6 +14,9 @@ interface CatDao {
 
     @Query("SELECT * FROM cat WHERE id = :id")
     fun getById(id: String): Cat
+
+    @Query("SELECT * FROM cat")
+    fun getAllAsFlow(): Flow<List<Cat>>
 
     @Query("SELECT * FROM cat WHERE id = :id")
     fun getById(id: UUID): Cat
