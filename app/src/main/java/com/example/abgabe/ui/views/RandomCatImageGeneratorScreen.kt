@@ -19,8 +19,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import coil.compose.rememberImagePainter
-import com.example.abgabe.data.local.AppDatabase
-import com.example.abgabe.data.local.Cat
 import com.example.abgabe.data.remote.CatGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +29,7 @@ class RandomCatScreen: ViewModel() {
        catGenerator: CatGenerator,
         modifier: Modifier = Modifier)
     {
-        var  randomCat  by remember { mutableStateOf<Cat?>(null) }
+        var  randomCatPictureUrl by remember { mutableStateOf<String?>(null) }
         val coroutineScope = rememberCoroutineScope()
         var updateDatabase by remember { mutableStateOf(false) }
 
@@ -48,15 +46,15 @@ class RandomCatScreen: ViewModel() {
             if (updateDatabase) {
                 LaunchedEffect(key1 = Unit) {
                     coroutineScope.launch(Dispatchers.IO) {
-                        randomCat = catGenerator.getCatInfo().firstOrNull()
+                        randomCatPictureUrl = catGenerator.getRandomCatPictureUrl()
                         updateDatabase = false
                     }
                 }
             }
 
-            randomCat?.let { cat ->
+            randomCatPictureUrl?.let {
                 Image(
-                    painter = rememberImagePainter(data = cat.imageUrl),
+                    painter = rememberImagePainter(data = randomCatPictureUrl),
                     contentDescription = "Cat Image",
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.Crop

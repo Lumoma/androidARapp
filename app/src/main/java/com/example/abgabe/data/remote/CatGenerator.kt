@@ -40,16 +40,10 @@ data class Weight(
 class CatGenerator {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getCatInfo(): List<Cat> {
-        val catApiString = getOneCat()
+    suspend fun getRandomCatPictureUrl(): String {
+        val catApiString = getCats(1)
         val catApiDataList = json.decodeFromString<List<CatApiData>>(catApiString)
-        return catApiDataList.map { convertToCat(it) }
-    }
-
-    suspend fun getTenCatInfos(): List<Cat> {
-        val catApiString = getTenCats()
-        val catApiDataList = json.decodeFromString<List<CatApiData>>(catApiString)
-        return catApiDataList.map { convertToCat(it) }
+        return catApiDataList.first().url
     }
 
     suspend fun getCatInfos(amount: Int): List<Cat> {
