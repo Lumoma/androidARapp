@@ -42,4 +42,11 @@ interface CatDao {
     @Query("DELETE FROM cat")
     fun deleteAll()
 
+    @Query("SELECT * FROM cat ORDER BY name ASC")
+    fun getCatsOrderedByName(): Flow<List<Cat>>
+
+    @Query("SELECT * FROM cat ORDER BY breed ASC")
+    fun getCatsOrderedByBreed(): Flow<List<Cat>>
+
+
 }

@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                             CatOverviewUI.Content(
                                 uiState = uiState,
                                 onNavigateToQR = { navController.navigate("QR") },
-                                onNavigateToDatabase = { navController.navigate("RandomCatPictureGenerator") },
+                                onNavigateToRandomCatPicture = { navController.navigate("RandomCatPictureGenerator") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") }
                             )

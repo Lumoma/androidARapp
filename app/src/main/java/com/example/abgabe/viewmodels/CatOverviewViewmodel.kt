@@ -26,7 +26,7 @@ class CatOverviewViewModel @Inject constructor(
 
     private fun loadCats() {
         viewModelScope.launch {
-            catDatabase.catDao().getAllAsFlow().collect { cats ->
+            catDatabase.catDao().getCatsOrderedByName().collect { cats ->
                 _uiState.value = if (cats.isNotEmpty()) {
                     CatOverviewUiState.Success(cats)
                 } else {

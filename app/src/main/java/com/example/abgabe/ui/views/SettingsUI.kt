@@ -4,13 +4,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Dataset
@@ -22,6 +23,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +41,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.states.SettingsUiState
 import com.example.abgabe.viewmodels.SettingsViewModel
+import javax.inject.Inject
 
 object SettingsUI {
 
@@ -51,7 +58,6 @@ object SettingsUI {
         viewModel: SettingsViewModel,
         uiState: SettingsUiState,
         onNavigateToOverview: () -> Unit,
-        modifier: Modifier = Modifier
     ) {
         Scaffold(
             topBar = {
@@ -85,14 +91,14 @@ object SettingsUI {
                             onClick = { viewModel.onDumpDatabaseClicked() },
                             icon = { Icon(Icons.Filled.Delete, "Delete whole Database") },
                             text = { Text(text = "Dump Database") },
-                            modifier = Modifier.padding(start = 16.dp) // Abstand von der linken Wand
+                            modifier = Modifier.padding(start = 16.dp)
                         )
 
                         ExtendedFloatingActionButton(
                             onClick = { viewModel.onGenerateCatsClicked(10) },
                             icon = { Icon(Icons.Filled.Dataset, "Generate Random Database") },
                             text = { Text(text = "Fill Database") },
-                            modifier = Modifier.padding(end = 16.dp) // Abstand von der rechten Wand
+                            modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 }
@@ -101,26 +107,30 @@ object SettingsUI {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(end = 16.dp)
+                .padding(start = 16.dp)
+                .padding(top = 16.dp)
+                .padding(bottom = 16.dp)
                 .padding(innerPadding)
         ) {
-            Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-                when (uiState) {
-                    is SettingsUiState.Loading -> LoadingState(text = "Loading database...")
+                Column(modifier = Modifier.fillMaxSize()) {
+                    when (uiState) {
+                        is SettingsUiState.Loading -> LoadingState(text = "Loading database...", )
 
-                    is SettingsUiState.DumpingDatabase -> LoadingState(text = "Dumping database...")
+                        is SettingsUiState.DumpingDatabase -> LoadingState(text = "Dumping database...")
 
-                    is SettingsUiState.Content -> ContentState(uiState.amount,
-                        viewModel::onDumpDatabaseClicked
-                    ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
-
-                     is SettingsUiState.DatabaseEmpty -> {
-                        ShowDialog { amount -> (viewModel::onGenerateCatsClicked)(amount) }
-                        ContentState(0,
+                        is SettingsUiState.Content -> ContentState(uiState.amount,
                             viewModel::onDumpDatabaseClicked
                         ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
+
+                         is SettingsUiState.DatabaseEmpty -> {
+                            ShowDialog { amount -> (viewModel::onGenerateCatsClicked)(amount) }
+                            ContentState(0,
+                                viewModel::onDumpDatabaseClicked
+                            ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
+                        }
                     }
                 }
-            }
             }
         }
     }
@@ -134,36 +144,66 @@ object SettingsUI {
         var catAmount by remember { mutableStateOf("") }
         val keyboardController = LocalSoftwareKeyboardController.current
 
-        Text(text = "Cats in Database: $currentCatAmount")
 
-        if ((catAmount.toIntOrNull() ?: 0) > 0) {
-            val amount = catAmount.toIntOrNull() ?: 1
-            Button(onClick = { onGenerateClick(amount) }) {
-                Text(if (amount == 1) "Generate one more cat" else "Generate $amount more new cats")
-            }
-        } else {
-            Button(onClick = { onGenerateClick(10) }) {
-                Text("Generate 10 Cats")
+        Text(text = "Amount of Cats: ",
+            fontSize = 20.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Text(text = "$currentCatAmount",
+            fontSize = 40.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+                .padding(start = 16.dp)
+        )
+        HorizontalDivider(thickness = 2.dp)
+        Text(text = "Generate new Cats: ",
+            fontSize = 20.sp,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        Column(
+            modifier = Modifier.padding(top = 16.dp)
+                .padding(start = 16.dp)
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TextField(value = catAmount,
+                onValueChange = { catAmount = it },
+                label = { Text("Amount of new cats") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
+            )
+
+            if ((catAmount.toIntOrNull() ?: 0) > 0) {
+                val amount = catAmount.toIntOrNull() ?: 1
+                Button(onClick = { onGenerateClick(amount) }) {
+                    Text(if (amount == 1) "Generate one more cat" else "Generate $amount more new cats")
+                }
+            } else {
+                Button(onClick = { onGenerateClick(10) }) {
+                    Text("Generate 10 Cats")
+                }
             }
         }
-
-        TextField(value = catAmount,
-            onValueChange = { catAmount = it },
-            label = { Text("Amount of new cats") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
-        )
+        HorizontalDivider(thickness = 2.dp)
     }
 
     @Composable
     fun LoadingState(
-        text: String, modifier: Modifier = Modifier
+        text: String
     ) {
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = modifier.align(Alignment.Center))
-            Text(text = text, modifier = modifier.align(Alignment.BottomCenter))
+        Row(
+            modifier = Modifier.fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                CircularProgressIndicator()
+                Text(text = text)
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 
@@ -191,7 +231,7 @@ object SettingsUI {
                     showDialog = false
                     onGenerateClick(10)
                 }) {
-                    Text("Yes, Generate new Database with 10 Cats")
+                    Text("Yes")
                 }
             })
         }
@@ -199,4 +239,8 @@ object SettingsUI {
 }
 
 
-
+@Preview
+@Composable
+fun PreviewSettingsUI () {
+    SettingsUI.ContentState(10, {}, {})
+}

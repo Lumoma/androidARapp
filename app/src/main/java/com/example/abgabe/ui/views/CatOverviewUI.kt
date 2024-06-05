@@ -2,6 +2,7 @@ package com.example.abgabe.ui.views
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -51,7 +52,7 @@ object CatOverviewUI {
     fun Content(
         uiState: CatOverviewUiState,
         onNavigateToQR: () -> Unit,
-        onNavigateToDatabase: () -> Unit,
+        onNavigateToRandomCatPicture: () -> Unit,
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
         modifier: Modifier = Modifier,
@@ -112,7 +113,7 @@ object CatOverviewUI {
                                 contentDescription = "Localized description",
                             )
                         }
-                        IconButton(onClick = { onNavigateToDatabase() }) {
+                        IconButton(onClick = { onNavigateToRandomCatPicture() }) {
                             Icon(
                                 Icons.Filled.Autorenew,
                                 contentDescription = "Localized description",
@@ -127,12 +128,10 @@ object CatOverviewUI {
                 )
             },
         ) { innerPadding ->
-            Column(
+            Box(
                 modifier = modifier
                     .padding(innerPadding)
-                    .fillMaxWidth()
             ) {
-
                 when (uiState) {
                     CatOverviewUiState.Loading -> {
                         CircularProgressIndicator()
@@ -242,7 +241,7 @@ fun CatOverviewUIPreview() {
             )
         ),
         onNavigateToQR = {},
-        onNavigateToDatabase = {},
+        onNavigateToRandomCatPicture = {},
         onNavigateToSettings = {},
         onNavigateToDetail = {},
     )
