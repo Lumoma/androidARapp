@@ -1,19 +1,34 @@
 package com.example.abgabe.ui.views
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Dataset
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,12 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.abgabe.ui.states.SettingsUiState
 import com.example.abgabe.viewmodels.SettingsViewModel
 
 object SettingsUI {
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun HandleDatabaseContent(
         viewModel: SettingsViewModel,
@@ -36,20 +53,56 @@ object SettingsUI {
         onNavigateToOverview: () -> Unit,
         modifier: Modifier = Modifier
     ) {
-        Column {
-            Box(modifier = modifier, contentAlignment = Alignment.Center) {
-
-                //Headline
-                Text(
-                    text = "Settings",
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 50.dp),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    title = {
+                        Text(
+                            "Settings", maxLines = 1, overflow = TextOverflow.Clip
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { onNavigateToOverview() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBackIosNew,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    },
                 )
-            }
+            },
+            bottomBar = {
+                BottomAppBar {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Absolute.SpaceAround
+                    ) {
+                        ExtendedFloatingActionButton(
+                            onClick = { viewModel.onDumpDatabaseClicked() },
+                            icon = { Icon(Icons.Filled.Delete, "Delete whole Database") },
+                            text = { Text(text = "Dump Database") },
+                            modifier = Modifier.padding(start = 16.dp) // Abstand von der linken Wand
+                        )
 
+                        ExtendedFloatingActionButton(
+                            onClick = { viewModel.onGenerateCatsClicked(10) },
+                            icon = { Icon(Icons.Filled.Dataset, "Generate Random Database") },
+                            text = { Text(text = "Fill Database") },
+                            modifier = Modifier.padding(end = 16.dp) // Abstand von der rechten Wand
+                        )
+                    }
+                }
+            },
+        ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             Column(modifier = modifier.verticalScroll(rememberScrollState())) {
                 when (uiState) {
                     is SettingsUiState.Loading -> LoadingState(text = "Loading database...")
@@ -57,18 +110,17 @@ object SettingsUI {
                     is SettingsUiState.DumpingDatabase -> LoadingState(text = "Dumping database...")
 
                     is SettingsUiState.Content -> ContentState(uiState.amount,
-                        onNavigateToOverview,
                         viewModel::onDumpDatabaseClicked
                     ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
 
                      is SettingsUiState.DatabaseEmpty -> {
                         ShowDialog { amount -> (viewModel::onGenerateCatsClicked)(amount) }
                         ContentState(0,
-                            onNavigateToOverview,
                             viewModel::onDumpDatabaseClicked
                         ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
                     }
                 }
+            }
             }
         }
     }
@@ -76,19 +128,11 @@ object SettingsUI {
     @Composable
     fun ContentState(
         currentCatAmount: Int,
-        onNavigateToSettings: () -> Unit,
         onDumpDatabase: () -> Unit,
         onGenerateClick: (int: Int) -> Unit,
     ) {
         var catAmount by remember { mutableStateOf("") }
         val keyboardController = LocalSoftwareKeyboardController.current
-
-        Button(onClick = { onNavigateToSettings() }) {
-            Text("Back to Overview")
-        }
-        Button(onClick = { onDumpDatabase() }) {
-            Text("Dump Database")
-        }
 
         Text(text = "Cats in Database: $currentCatAmount")
 

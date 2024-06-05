@@ -17,7 +17,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.abgabe.data.local.AppDatabase
-import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.CatOverviewUI
 import com.example.abgabe.ui.views.QRCodeUI.QrCodeScannerScreen
@@ -76,13 +75,13 @@ class MainActivity : ComponentActivity() {
                             val uiState by homeScreenViewModel.uiState.collectAsState()
                             CatOverviewUI.Content(
                                 uiState = uiState,
-                                onNavigateToAR = { navController.navigate("AR") },
+                                onNavigateToQR = { navController.navigate("QR") },
                                 onNavigateToDatabase = { navController.navigate("RandomCatPictureGenerator") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") }
                             )
                         }
-                        composable("AR") {
+                        composable("QR") {
                             //TODO: arScreen.DisplayAR()
                             QrCodeScannerScreen(
                                 viewModel = qrCodeScannerViewModel,

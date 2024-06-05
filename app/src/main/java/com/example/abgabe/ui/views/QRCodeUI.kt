@@ -27,24 +27,4 @@ object QRCodeUI {
         val scannedCatId by viewModel.scannedCatId.observeAsState()
         scannedCatId?.let { onCatFound(it) }
     }
-
-    @Composable
-    fun QrCodeScannerScreen2(
-        viewModel: QrCodeScannerViewModel,
-        onCatFound: (String) -> Unit
-    ) {
-        val context = LocalContext.current
-        Button(onClick = {
-            val integrator = IntentIntegrator(context as Activity)
-            integrator.setPrompt("Scan a barcode or QR Code")
-            integrator.setBeepEnabled(false)
-            integrator.setBarcodeImageEnabled(true)
-            integrator.initiateScan()
-        }) {
-            Text("Scan QR Code")
-        }
-
-        val scannedCatId by viewModel.scannedCatId.observeAsState()
-        scannedCatId?.let { onCatFound(it) }
-    }
 }
