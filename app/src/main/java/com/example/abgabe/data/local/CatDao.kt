@@ -13,13 +13,13 @@ interface CatDao {
     fun getAll(): List<Cat>
 
     @Query("SELECT * FROM cat WHERE id = :id")
-    fun getById(id: String): Cat
+    fun getCatByIdSting(id: String): Cat
 
     @Query("SELECT * FROM cat")
     fun getAllAsFlow(): Flow<List<Cat>>
 
     @Query("SELECT * FROM cat WHERE id = :id")
-    fun getById(id: UUID): Cat
+    fun getCatByIdUUID(id: UUID): Cat
 
     @Query("SELECT * FROM cat WHERE name = :name")
     fun getByName(name: String): Cat
@@ -41,4 +41,5 @@ interface CatDao {
 
     @Query("DELETE FROM cat")
     fun deleteAll()
+
 }

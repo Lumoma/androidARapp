@@ -1,6 +1,8 @@
 package com.example.abgabe
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,12 +20,14 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.remote.CatGenerator
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.CatOverviewUI
+import com.example.abgabe.ui.views.QRCodeUI.QrCodeScannerScreen
 import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
-import com.example.abgabe.utils.QrCodeScanner
+import com.example.abgabe.utils.QrCodeScannerViewModel
 import com.example.abgabe.viewmodels.CatOverviewViewModel
 import com.example.abgabe.viewmodels.DetailViewModel
 import com.example.abgabe.viewmodels.RandomCatImageViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
+import com.google.zxing.integration.android.IntentIntegrator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -35,7 +39,7 @@ class MainActivity : ComponentActivity() {
     private val detailScreenViewModel: DetailViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val randomCatScreen: RandomCatImageViewModel by viewModels()
-    //private val qrCodeScanner: QrCodeScanner by viewModels()
+    private val qrCodeScannerViewModel: QrCodeScannerViewModel by viewModels()
 
     @Inject
     lateinit var db: AppDatabase
@@ -80,6 +84,12 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("AR") {
                             //TODO: arScreen.DisplayAR()
+                            QrCodeScannerScreen(
+                                viewModel = qrCodeScannerViewModel,
+                                onCatFound = {
+                                        id -> navController.navigate("Detail/$id")
+                                }
+                            )
                         }
                         composable("RandomCatPictureGenerator") {
                             randomCatScreen.DisplayCatJson()
@@ -100,6 +110,19 @@ class MainActivity : ComponentActivity() {
                 FeatureThatRequiresCameraPermission()
                  */
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+        if (result != null) {
+            if (result.contents == null) {
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
+            } else {
+               qrCodeScannerViewModel.onQrCodeScanned(result.contents)
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 }

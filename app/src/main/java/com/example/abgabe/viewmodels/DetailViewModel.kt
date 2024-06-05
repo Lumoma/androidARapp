@@ -45,7 +45,7 @@ class DetailViewModel @Inject constructor(
                 val uuidString: String? = id
                 if (uuidString != null) {
                     val uuid: UUID? = UUID.fromString(uuidString)
-                    uuid?.let { cat = database.catDao().getById(it) }
+                    uuid?.let { cat = database.catDao().getCatByIdUUID(it) }
                 }
             }
         }
