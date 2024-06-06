@@ -4,8 +4,10 @@ package com.example.abgabe.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.data.local.Cat
 import com.example.abgabe.ui.states.CatOverviewUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,7 @@ class CatOverviewViewModel @Inject constructor(
         loadCats()
     }
 
-    private fun loadCats() {
+    fun loadCats() {
         viewModelScope.launch {
             catDatabase.catDao().getCatsOrderedByName().collect { cats ->
                 _uiState.value = if (cats.isNotEmpty()) {
@@ -33,6 +35,13 @@ class CatOverviewViewModel @Inject constructor(
                     CatOverviewUiState.EmptyDatabase
                 }
             }
+        }
+    }
+
+    fun addCat(cat: Cat) {
+        viewModelScope.launch(Dispatchers.IO) {
+            catDatabase.catDao().insert(cat)
+            loadCats()
         }
     }
 }

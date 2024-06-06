@@ -59,7 +59,7 @@ private suspend fun convertToCat(catApiData: CatApiData, context: Context): Cat 
         lifeExpectancy = breed.life_span,
         imageUrl = catApiData.url,
         qrCodeByteArray = generateQRCodeByteCodeFromUUID(uuid),
-        qrCodePath = generateQRCodeFromUUID(name, uuid, context).toString()
+        qrCodePath = generateQRCodeFromUUID(name, uuid, context)
     )
 }
 private fun getRandomCatName(): String {
@@ -115,7 +115,7 @@ private fun getRandomCatName(): String {
     )
     return catNames.random()
 }
-private suspend fun generateQRCodeFromUUID(name: String, uuid: UUID, context: Context): String = withContext(Dispatchers.IO) {
+ suspend fun generateQRCodeFromUUID(name: String, uuid: UUID, context: Context): String = withContext(Dispatchers.IO) {
     val qrCodeWriter = QRCodeWriter()
     val bitMatrix = qrCodeWriter.encode(uuid.toString(), BarcodeFormat.QR_CODE, 200, 200)
 
@@ -167,7 +167,7 @@ fun saveImageToStorage(bitmap: Bitmap, context: Context, catId: String): String 
     return uri?.path ?: ""
 }
 
-private fun generateQRCodeByteCodeFromUUID(uuid: UUID): ByteArray {
+fun generateQRCodeByteCodeFromUUID(uuid: UUID): ByteArray {
     val qrCodeWriter = QRCodeWriter()
     val bitMatrix = qrCodeWriter.encode(uuid.toString(), BarcodeFormat.QR_CODE, 200, 200)
 

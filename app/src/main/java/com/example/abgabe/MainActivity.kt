@@ -40,15 +40,12 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var db: AppDatabase
-
     /*
     // AR
     private lateinit var arScreen: ARScreen
      */
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         /*
             // Kameraberechtigung zur Laufzeit anfordern
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -58,8 +55,6 @@ class MainActivity : ComponentActivity() {
             arScreen = arScreenFactory.createARScreen(this)
             //setContentView(R.layout.activity_main)
         */
-
-        //TODO: val fitToScanView: ImageView = findViewById(R.id.fit_to_scan_view)
         enableEdgeToEdge()
         setContent {
             AbgabeTheme {
@@ -74,13 +69,11 @@ class MainActivity : ComponentActivity() {
                             CatOverviewUI.Content(
                                 uiState = uiState,
                                 onNavigateToQR = { navController.navigate("QR") },
-                                onNavigateToRandomCatPicture = { navController.navigate("RandomCatPictureGenerator") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") }
                             )
                         }
                         composable("QR") {
-                            //TODO: arScreen.DisplayAR()
                             QrCodeScannerScreen(
                                 viewModel = qrCodeScannerViewModel,
                                 onCatFound = {
@@ -102,9 +95,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                /*
-                FeatureThatRequiresCameraPermission()
-                 */
             }
         }
     }
@@ -122,38 +112,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-/*
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-private fun FeatureThatRequiresCameraPermission() {
-
-    // Camera permission state
-    val cameraPermissionState = rememberPermissionState(
-        android.Manifest.permission.CAMERA
-    )
-
-    if (cameraPermissionState.status.isGranted) {
-        Text("Camera permission Granted")
-    } else {
-        Column {
-            val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
-                // If the user has denied the permission but the rationale can be shown,
-                // then gently explain why the app requires this permission
-                "The camera is important for this app. Please grant the permission."
-            } else {
-                // If it's the first time the user lands on this feature, or the user
-                // doesn't want to be asked again for this permission, explain that the
-                // permission is required
-                "Camera permission required for this feature to be available. " +
-                        "Please grant the permission"
-            }
-            Text(textToShow)
-            Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                Text("Request permission")
-            }
-        }
-    }
-}
-
-*/

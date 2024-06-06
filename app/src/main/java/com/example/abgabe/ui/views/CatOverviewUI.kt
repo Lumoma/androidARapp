@@ -1,5 +1,6 @@
 package com.example.abgabe.ui.views
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,10 +17,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,12 +32,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.material.icons.filled.ImageSearch
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.ViewInAr
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -45,7 +49,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.abgabe.data.local.Cat
+import com.example.abgabe.data.remote.generateQRCodeByteCodeFromUUID
 import com.example.abgabe.ui.states.CatOverviewUiState
+import com.example.abgabe.viewmodels.CatOverviewViewModel
 import java.util.UUID
 
 object CatOverviewUI {
@@ -55,12 +61,17 @@ object CatOverviewUI {
     fun Content(
         uiState: CatOverviewUiState,
         onNavigateToQR: () -> Unit,
-        onNavigateToRandomCatPicture: () -> Unit,
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
         modifier: Modifier = Modifier,
     ) {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+        val showCreateCatDialog = remember { mutableStateOf(false) }
+
+        AddCatDialog(
+            showDialog = showCreateCatDialog.value,
+            onDialogClose = {},
+        )
 
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -99,7 +110,7 @@ object CatOverviewUI {
                 BottomAppBar(
                     actions = {},
                     floatingActionButton = {
-                        FloatingActionButton(onClick = { /* do something */ }) {
+                        FloatingActionButton(onClick = { showCreateCatDialog.value = true }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
                     },
@@ -165,7 +176,7 @@ object CatOverviewUI {
                 .clickable(onClick = { onClick(cat) }),
             shape = RoundedCornerShape(8.dp),
         ) {
-            Column { // Verwenden Sie eine Spalte, um das Bild und den Text zu stapeln
+            Column {
                 AsyncImage(
                     model = cat.imageUrl,
                     contentDescription = "Image from URL",
@@ -191,6 +202,81 @@ object CatOverviewUI {
 
                 }
             }
+        }
+    }
+
+    @Composable
+    fun AddCatDialog(
+        showDialog: Boolean,
+        onDialogClose: () -> Unit,
+        //context: Context
+    ) {
+        var catName by remember { mutableStateOf("") }
+        var catBreed by remember { mutableStateOf("") }
+        var catTemperament by remember { mutableStateOf("") }
+        var catOrigin by remember { mutableStateOf("") }
+        var catLifeExpectancy by remember { mutableStateOf("") }
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { onDialogClose() },
+                title = { Text("Add Cat") },
+                text = {
+                    Column {
+                        TextField(
+                            value = catName,
+                            onValueChange = { catName = it },
+                            label = { Text("Name") }
+                        )
+                        TextField(
+                            value = catBreed,
+                            onValueChange = { catBreed = it },
+                            label = { Text("Breed") }
+                        )
+                        TextField(
+                            value = catTemperament,
+                            onValueChange = { catTemperament = it },
+                            label = { Text("Temperament") }
+                        )
+                        TextField(
+                            value = catOrigin,
+                            onValueChange = { catOrigin = it },
+                            label = { Text("Origin") }
+                        )
+                        TextField(
+                            value = catLifeExpectancy,
+                            onValueChange = { catLifeExpectancy = it },
+                            label = { Text("Life Expectancy") }
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        val uuid = UUID.randomUUID()
+                        val newCat = Cat(
+                            id = uuid,
+                            name = catName,
+                            breed = catBreed,
+                            temperament = catTemperament,
+                            origin = catOrigin,
+                            lifeExpectancy = catLifeExpectancy,
+                            imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg", // TODO: get random cat image
+                            qrCodeByteArray = generateQRCodeByteCodeFromUUID(uuid),
+                            qrCodePath = "qrCodePath" // TODO: generateQRCodeFromUUID(catName, uuid, context)
+                        )
+
+                        //viewModel.addCat(newCat)
+                        onDialogClose()
+                    }) {
+                        Text("Add Cat")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { onDialogClose() }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
@@ -237,7 +323,6 @@ fun CatOverviewUIPreview() {
             )
         ),
         onNavigateToQR = {},
-        onNavigateToRandomCatPicture = {},
         onNavigateToSettings = {},
         onNavigateToDetail = {},
     )

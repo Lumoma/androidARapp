@@ -287,10 +287,6 @@ object SettingsUI {
         }
     }
 }
-
-
-
-
 @Preview
 @Composable
 fun PreviewSettingsUI () {
