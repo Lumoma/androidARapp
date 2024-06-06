@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.ViewInAr
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -74,10 +77,10 @@ object CatOverviewUI {
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = { /* do something */  }) {
+                        IconButton(onClick = { onNavigateToQR() }) {
                             Icon(
-                                imageVector = Icons.Filled.ThumbUp,
-                                contentDescription = "Localized description"
+                                Icons.Filled.QrCodeScanner,
+                                contentDescription = "Localized description",
                             )
                         }
                     },
@@ -94,32 +97,7 @@ object CatOverviewUI {
             },
             bottomBar = {
                 BottomAppBar(
-                    actions = {
-                        IconButton(onClick = { onNavigateToQR() }) {
-                            Icon(
-                                Icons.Filled.ViewInAr,
-                                contentDescription = "Localized description",
-                            )
-                        }
-                        IconButton(onClick = { { /* do something */ } }) {
-                            Icon(
-                                Icons.Filled.ImageSearch,
-                                contentDescription = "Localized description",
-                            )
-                        }
-                        IconButton(onClick = { /* do something */ }) {
-                            Icon(
-                                Icons.Filled.QrCodeScanner,
-                                contentDescription = "Localized description",
-                            )
-                        }
-                        IconButton(onClick = { onNavigateToRandomCatPicture() }) {
-                            Icon(
-                                Icons.Filled.Autorenew,
-                                contentDescription = "Localized description",
-                            )
-                        }
-                    },
+                    actions = {},
                     floatingActionButton = {
                         FloatingActionButton(onClick = { /* do something */ }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
@@ -134,12 +112,27 @@ object CatOverviewUI {
             ) {
                 when (uiState) {
                     CatOverviewUiState.Loading -> {
-                        CircularProgressIndicator()
-                        Text("Loading cats...")
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.weight(1f))
+                            CircularProgressIndicator()
+                            Text(text = "Loading Cats...")
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
 
                     CatOverviewUiState.EmptyDatabase -> {
-                        Text("Database is empty, go to settings to generate cats")
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text("Database is empty!")
+                            Text("Go to settings to generate cats.")
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
 
                     is CatOverviewUiState.Success -> {
@@ -216,7 +209,8 @@ fun CatOverviewUIPreview() {
                     origin = "Origin 1",
                     lifeExpectancy = "Life Expectancy 1",
                     imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg",
-                    qrCodeImage = byteArrayOf(0, 1, 2, 3)
+                    qrCodePath = "qrCodePath",
+                    qrCodeByteArray = byteArrayOf(0, 1, 2, 3)
                 ),
                 Cat(
                     id = UUID.randomUUID(),
@@ -226,7 +220,8 @@ fun CatOverviewUIPreview() {
                     origin = "Origin 2",
                     lifeExpectancy = "Life Expectancy 2",
                     imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg",
-                    qrCodeImage = byteArrayOf(0, 1, 2, 3)
+                    qrCodePath = "qrCodePath",
+                    qrCodeByteArray = byteArrayOf(0, 1, 2, 3)
                 ),
                 Cat(
                     id = UUID.randomUUID(),
@@ -236,7 +231,8 @@ fun CatOverviewUIPreview() {
                     origin = "Origin 3",
                     lifeExpectancy = "Life Expectancy 3",
                     imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg",
-                    qrCodeImage = byteArrayOf(0, 1, 2, 3)
+                    qrCodePath = "qrCodePath",
+                    qrCodeByteArray = byteArrayOf(0, 1, 2, 3)
                 ),
             )
         ),

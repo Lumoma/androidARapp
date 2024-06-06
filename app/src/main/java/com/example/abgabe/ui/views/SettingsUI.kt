@@ -1,7 +1,8 @@
 package com.example.abgabe.ui.views
 
+import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,11 +10,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Dataset
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -32,29 +33,34 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.abgabe.data.local.AppDatabase
-import com.example.abgabe.data.remote.CatGenerator
+import coil.compose.rememberImagePainter
+import com.example.abgabe.data.remote.getRandomCatPicture
 import com.example.abgabe.ui.states.SettingsUiState
 import com.example.abgabe.viewmodels.SettingsViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object SettingsUI {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun HandleDatabaseContent(
+        context: Context,
         viewModel: SettingsViewModel,
         uiState: SettingsUiState,
         onNavigateToOverview: () -> Unit,
@@ -95,7 +101,7 @@ object SettingsUI {
                         )
 
                         ExtendedFloatingActionButton(
-                            onClick = { viewModel.onGenerateCatsClicked(10) },
+                            onClick = { viewModel.onGenerateCatsClicked(10, context = context) },
                             icon = { Icon(Icons.Filled.Dataset, "Generate Random Database") },
                             text = { Text(text = "Fill Database") },
                             modifier = Modifier.padding(end = 16.dp)
@@ -121,13 +127,13 @@ object SettingsUI {
 
                         is SettingsUiState.Content -> ContentState(uiState.amount,
                             viewModel::onDumpDatabaseClicked
-                        ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
+                        ) { amount -> (viewModel::onGenerateCatsClicked)(amount, context) }
 
                          is SettingsUiState.DatabaseEmpty -> {
-                            ShowDialog { amount -> (viewModel::onGenerateCatsClicked)(amount) }
+                            ShowDialog { amount -> (viewModel::onGenerateCatsClicked)(amount, context) }
                             ContentState(0,
                                 viewModel::onDumpDatabaseClicked
-                            ) { amount -> (viewModel::onGenerateCatsClicked)(amount) }
+                            ) { amount -> (viewModel::onGenerateCatsClicked)(amount, context) }
                         }
                     }
                 }
@@ -143,7 +149,6 @@ object SettingsUI {
     ) {
         var catAmount by remember { mutableStateOf("") }
         val keyboardController = LocalSoftwareKeyboardController.current
-
 
         Text(text = "Amount of Cats: ",
             fontSize = 20.sp,
@@ -185,6 +190,11 @@ object SettingsUI {
             }
         }
         HorizontalDivider(thickness = 2.dp)
+        Text(text = "Random Cat Picture Generator: ",
+            fontSize = 20.sp,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        DisplayRandomCatPicture()
     }
 
     @Composable
@@ -236,7 +246,49 @@ object SettingsUI {
             })
         }
     }
+
+    @Composable
+    fun DisplayRandomCatPicture(
+        modifier: Modifier = Modifier)
+    {
+        var  randomCatPictureUrl by remember { mutableStateOf<String?>(null) }
+        val coroutineScope = rememberCoroutineScope()
+        var updateDatabase by remember { mutableStateOf(false) }
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+
+        )
+        {
+            Button(
+                modifier = modifier.padding(16.dp),
+                onClick = { updateDatabase = true }) {
+                Icon(Icons.Filled.AutoAwesome, contentDescription = "Generate Random Cat Picture")
+            }
+
+            if (updateDatabase) {
+                LaunchedEffect(key1 = Unit) {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        randomCatPictureUrl = getRandomCatPicture()
+                        updateDatabase = false
+                    }
+                }
+            }
+
+            randomCatPictureUrl?.let {
+                Image(
+                    painter = rememberImagePainter(data = randomCatPictureUrl),
+                    contentDescription = "Cat Image",
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+    }
 }
+
+
 
 
 @Preview

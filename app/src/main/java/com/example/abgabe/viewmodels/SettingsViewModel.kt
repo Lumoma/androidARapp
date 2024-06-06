@@ -1,9 +1,10 @@
 package com.example.abgabe.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.abgabe.data.local.AppDatabase
-import com.example.abgabe.data.remote.CatGenerator
+import com.example.abgabe.data.remote.getCats
 import com.example.abgabe.ui.states.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -13,11 +14,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val database: AppDatabase,
-    private val catGenerator: CatGenerator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
@@ -48,11 +49,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onGenerateCatsClicked(amount: Int) {
+    fun onGenerateCatsClicked(amount: Int, context: Context) {
         viewModelScope.launch {
             _uiState.value = SettingsUiState.Loading
             withContext(Dispatchers.IO) {
-                catGenerator.getCatInfos(if (amount > 0) amount else 10)
+                getCats(if (amount > 0) amount else 10, context)
                     .forEach { database.catDao().insert(it) }
             }
             _uiState.value = SettingsUiState.Content(getDatabaseSize())

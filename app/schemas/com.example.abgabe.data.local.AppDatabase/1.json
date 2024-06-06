@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "12744ddacdb0b0d419f04e45accbfe86",
+    "identityHash": "5bf45222d91392f24240dae883f923fb",
     "entities": [
       {
         "tableName": "Cat",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `breed` TEXT NOT NULL, `temperament` TEXT NOT NULL, `origin` TEXT NOT NULL, `lifeExpectancy` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `qrCodeImage` BLOB NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `breed` TEXT NOT NULL, `temperament` TEXT NOT NULL, `origin` TEXT NOT NULL, `lifeExpectancy` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `qrCodePath` TEXT NOT NULL, `qrCodeByteArray` BLOB NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -51,8 +51,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "qrCodeImage",
-            "columnName": "qrCodeImage",
+            "fieldPath": "qrCodePath",
+            "columnName": "qrCodePath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "qrCodeByteArray",
+            "columnName": "qrCodeByteArray",
             "affinity": "BLOB",
             "notNull": true
           }
@@ -70,7 +76,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12744ddacdb0b0d419f04e45accbfe86')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5bf45222d91392f24240dae883f923fb')"
     ]
   }
 }

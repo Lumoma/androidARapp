@@ -24,7 +24,6 @@ import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
 import com.example.abgabe.utils.QrCodeScannerViewModel
 import com.example.abgabe.viewmodels.CatOverviewViewModel
 import com.example.abgabe.viewmodels.DetailViewModel
-import com.example.abgabe.viewmodels.RandomCatImageViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
 import com.google.zxing.integration.android.IntentIntegrator
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,7 +36,6 @@ class MainActivity : ComponentActivity() {
     private val homeScreenViewModel: CatOverviewViewModel by viewModels()
     private val detailScreenViewModel: DetailViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-    private val randomCatScreen: RandomCatImageViewModel by viewModels()
     private val qrCodeScannerViewModel: QrCodeScannerViewModel by viewModels()
 
     @Inject
@@ -90,18 +88,17 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable("RandomCatPictureGenerator") {
-                            randomCatScreen.DisplayCatJson()
-                        }
                         composable("Settings") {
                             val uiState = settingsViewModel.uiState.collectAsState()
-                            HandleDatabaseContent(viewModel = settingsViewModel, uiState = uiState.value, onNavigateToOverview = {
+                            HandleDatabaseContent(context = this@MainActivity,viewModel = settingsViewModel, uiState = uiState.value, onNavigateToOverview = {
                                 navController.navigate("API")
                             })
                         }
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")
-                            detailScreenViewModel.DetailScreen(id = id)
+                            detailScreenViewModel.DetailScreen(context = this@MainActivity, id = id, onNavigateToOverview = {
+                                navController.navigate("API")
+                            })
                         }
                     }
                 }

@@ -3,7 +3,6 @@ package com.example.abgabe.di
 import android.content.Context
 import androidx.room.Room
 import com.example.abgabe.data.local.AppDatabase
-import com.example.abgabe.data.remote.CatGenerator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +24,6 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideCatGenerator(): CatGenerator {
-        return CatGenerator()
-    }
+    fun provideCatDao(appDatabase: AppDatabase) = appDatabase.catDao()
+
 }
