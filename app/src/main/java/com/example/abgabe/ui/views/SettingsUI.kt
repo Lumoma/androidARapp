@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,7 +35,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,150 +55,253 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.abgabe.data.remote.getRandomCatPicture
 import com.example.abgabe.ui.states.SettingsUiState
+import com.example.abgabe.ui.views.SettingsUI.ContentScreen
+import com.example.abgabe.ui.views.SettingsUI.SettingsScreen
 import com.example.abgabe.viewmodels.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object SettingsUI {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun HandleDatabaseContent(
-        context: Context,
+    fun SettingsScreen(
         viewModel: SettingsViewModel,
         uiState: SettingsUiState,
         onNavigateToOverview: () -> Unit,
+        context: Context
+    ) {
+        val coroutineScope = rememberCoroutineScope()
+
+        when (uiState) {
+            is SettingsUiState.Loading -> {
+                LoadingState("Loading")
+            }
+            is SettingsUiState.EmptyDatabase -> {
+                Question("Database is empty! Do you want to generate a new Database?",
+                    onYesClick = {
+                        coroutineScope.launch {
+                            viewModel.generateCat(10, context)
+                        }
+                    },
+                    onNoClick = {
+                        onNavigateToOverview()
+                    }
+                )
+            }
+            is SettingsUiState.Content -> {
+                val currentCatsAmount = (uiState as SettingsUiState.Content).currentCatsAmount
+                var randomCatPictureUrl by remember { mutableStateOf<String?>(null) }
+
+                LaunchedEffect(key1 = currentCatsAmount) {
+                    randomCatPictureUrl = getRandomCatPicture()
+                }
+
+                ContentScreen(
+                    currentCatsAmount = currentCatsAmount,
+                    onNavigateToOverview = onNavigateToOverview,
+                    onGenerateCatsClicked = { amount ->
+                        coroutineScope.launch {
+                            viewModel.generateCat(amount, context)
+                        }
+                    },
+                    onDumpDatabaseClicked = {
+                        coroutineScope.launch {
+                            viewModel.dumpDatabase()
+                        }
+                    },
+                    onGenerateNewDatabaseClicked = {
+                        coroutineScope.launch {
+                            viewModel.generateCat(10, context)
+                        }
+                    },
+                    onGenerateRandomCatPictureClick = {
+                        coroutineScope.launch {
+                            randomCatPictureUrl = getRandomCatPicture()
+                        }
+                    },
+                    randomCatPictureUrl = randomCatPictureUrl
+                )
+            }
+
+            SettingsUiState.DumpingDatabase -> viewModel.dumpDatabase()
+            SettingsUiState.Error -> Alert("Your Wish has to be more than the current amount of Cats!")
+            is SettingsUiState.UpdatingDatabase -> LoadingState("Updating Database")
+        }
+    }
+
+
+    @Composable
+    fun ContentScreen(
+        currentCatsAmount: Int,
+        onNavigateToOverview: () -> Unit,
+        onGenerateCatsClicked: (Int) -> Unit,
+        onDumpDatabaseClicked: () -> Unit,
+        onGenerateNewDatabaseClicked: () -> Unit,
+        onGenerateRandomCatPictureClick: () -> Unit,
+        randomCatPictureUrl: String?
     ) {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text(
-                            "Settings", maxLines = 1, overflow = TextOverflow.Clip
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { onNavigateToOverview() }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBackIosNew,
-                                contentDescription = "Localized description"
-                            )
-                        }
-                    },
-                )
+                HandleTopBar(onNavigateToOverview)
             },
             bottomBar = {
-                BottomAppBar {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Absolute.SpaceAround
-                    ) {
-                        ExtendedFloatingActionButton(
-                            onClick = { viewModel.onDumpDatabaseClicked() },
-                            icon = { Icon(Icons.Filled.Delete, "Delete whole Database") },
-                            text = { Text(text = "Dump Database") },
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
-
-                        ExtendedFloatingActionButton(
-                            onClick = { viewModel.onGenerateCatsClicked(10, context = context) },
-                            icon = { Icon(Icons.Filled.Dataset, "Generate Random Database") },
-                            text = { Text(text = "Fill Database") },
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
-                    }
-                }
+                HandleBottomBar(
+                    onDumpDatabaseClicked = onDumpDatabaseClicked,
+                    onGenerateNewDatabaseClicked = onGenerateNewDatabaseClicked
+                )
             },
         ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 16.dp)
-                .padding(start = 16.dp)
-                .padding(top = 16.dp)
-                .padding(bottom = 16.dp)
-                .padding(innerPadding)
-        ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    when (uiState) {
-                        is SettingsUiState.Loading -> LoadingState(text = "Loading database...", )
-
-                        is SettingsUiState.DumpingDatabase -> LoadingState(text = "Dumping database...")
-
-                        is SettingsUiState.Content -> ContentState(uiState.amount,
-                            viewModel::onDumpDatabaseClicked
-                        ) { amount -> (viewModel::onGenerateCatsClicked)(amount, context) }
-
-                         is SettingsUiState.DatabaseEmpty -> {
-                            ShowDialog { amount -> (viewModel::onGenerateCatsClicked)(amount, context) }
-                            ContentState(0,
-                                viewModel::onDumpDatabaseClicked
-                            ) { amount -> (viewModel::onGenerateCatsClicked)(amount, context) }
-                        }
-                    }
+            LazyColumn (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(end = 16.dp)
+                    .padding(start = 16.dp)
+                    .padding(top = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .padding(innerPadding)
+            ) {
+                item {
+                    CurrentCatAmount(currentCatAmount = currentCatsAmount)
+                }
+                item {
+                    HorizontalDivider(thickness = 2.dp)
+                }
+                item {
+                    CatGenerator(onGenerateCatsClick = { amount -> (onGenerateCatsClicked)(amount) })
+                }
+                item {
+                    HorizontalDivider(thickness = 2.dp)
+                }
+                item {
+                    RandomCatPictureGenerator( onGenerateRandomCatPictureClick = onGenerateRandomCatPictureClick, randomCatPictureUrl = randomCatPictureUrl)
                 }
             }
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ContentState(
-        currentCatAmount: Int,
-        onDumpDatabase: () -> Unit,
-        onGenerateClick: (int: Int) -> Unit,
+    fun HandleTopBar(
+        onNavigateToOverview: () -> Unit,
     ) {
-        var catAmount by remember { mutableStateOf("") }
-        val keyboardController = LocalSoftwareKeyboardController.current
+        CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Text(
+                    "Settings", maxLines = 1, overflow = TextOverflow.Clip
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = { onNavigateToOverview() }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIosNew,
+                        contentDescription = "Localized description"
+                    )
+                }
+            },
+        )
+    }
 
+    @Composable
+    fun HandleBottomBar(
+        onDumpDatabaseClicked: () -> Unit,
+        onGenerateNewDatabaseClicked: () -> Unit,
+    ) {
+        BottomAppBar {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Absolute.SpaceAround
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = { onDumpDatabaseClicked() },
+                    icon = { Icon(Icons.Filled.Delete, "Delete whole Database") },
+                    text = { Text(text = "Dump Database") },
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+
+                ExtendedFloatingActionButton(
+                    onClick = { onGenerateNewDatabaseClicked() },
+                    icon = { Icon(Icons.Filled.Dataset, "Generate Random Database") },
+                    text = { Text(text = "Fill Database") },
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+            }
+        }
+    }
+
+
+    @Composable
+    fun CurrentCatAmount(
+        currentCatAmount: Int
+    ) {
         Text(text = "Amount of Cats: ",
             fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
         Text(text = "$currentCatAmount",
             fontSize = 40.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier
+                .padding(bottom = 16.dp)
                 .padding(start = 16.dp)
         )
-        HorizontalDivider(thickness = 2.dp)
+    }
+
+    @Composable
+    fun CatGenerator(
+        onGenerateCatsClick: (toGenerateAmount: Int) -> Unit,
+    ) {
+        var wishedCatAmount by remember { mutableStateOf("") }
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         Text(text = "Generate new Cats: ",
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 16.dp)
         )
         Column(
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier
+                .padding(top = 16.dp)
                 .padding(start = 16.dp)
                 .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TextField(value = catAmount,
-                onValueChange = { catAmount = it },
-                label = { Text("Amount of new cats") },
+            TextField(value = wishedCatAmount,
+                onValueChange = {  wishedCatAmount = it },
+                label = { Text("Wished amount of cats") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
             )
 
-            if ((catAmount.toIntOrNull() ?: 0) > 0) {
-                val amount = catAmount.toIntOrNull() ?: 1
-                Button(onClick = { onGenerateClick(amount) }) {
-                    Text(if (amount == 1) "Generate one more cat" else "Generate $amount more new cats")
-                }
-            } else {
-                Button(onClick = { onGenerateClick(10) }) {
-                    Text("Generate 10 Cats")
-                }
+            Button(onClick = { onGenerateCatsClick(wishedCatAmount.toInt()) }) {
+                    Text("Generate")
+
             }
         }
-        HorizontalDivider(thickness = 2.dp)
+    }
+
+    @Composable
+    fun RandomCatPictureGenerator(
+        onGenerateRandomCatPictureClick: () -> Unit,
+        randomCatPictureUrl: String? = null,
+    ){
         Text(text = "Random Cat Picture Generator: ",
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 16.dp)
         )
-        DisplayRandomCatPicture()
+        Button(
+            modifier = Modifier.padding(16.dp),
+            onClick = { onGenerateRandomCatPictureClick() }) {
+            Icon(Icons.Filled.AutoAwesome, contentDescription = "Generate Random Cat Picture")
+        }
+        Image(
+            painter = rememberImagePainter(data = randomCatPictureUrl),
+            contentDescription = "Cat Image",
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.Crop
+        )
     }
 
     @Composable
@@ -218,8 +325,10 @@ object SettingsUI {
     }
 
     @Composable
-    fun ShowDialog(
-        onGenerateClick: (int: Int) -> Unit,
+    fun Question(
+        question: String,
+        onYesClick: () -> Unit,
+        onNoClick: () -> Unit
     ) {
         var showDialog by remember { mutableStateOf(true) }
 
@@ -239,7 +348,6 @@ object SettingsUI {
             }, dismissButton = {
                 Button(onClick = {
                     showDialog = false
-                    onGenerateClick(10)
                 }) {
                     Text("Yes")
                 }
@@ -248,47 +356,40 @@ object SettingsUI {
     }
 
     @Composable
-    fun DisplayRandomCatPicture(
-        modifier: Modifier = Modifier)
-    {
-        var  randomCatPictureUrl by remember { mutableStateOf<String?>(null) }
-        val coroutineScope = rememberCoroutineScope()
-        var updateDatabase by remember { mutableStateOf(false) }
+    fun Alert(
+        text: String
+    ) {
+        var showAlert by remember { mutableStateOf(true) }
 
-        Column(
-            modifier = modifier
-                .fillMaxSize()
+        if (showAlert) {
 
-        )
-        {
-            Button(
-                modifier = modifier.padding(16.dp),
-                onClick = { updateDatabase = true }) {
-                Icon(Icons.Filled.AutoAwesome, contentDescription = "Generate Random Cat Picture")
-            }
-
-            if (updateDatabase) {
-                LaunchedEffect(key1 = Unit) {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        randomCatPictureUrl = getRandomCatPicture()
-                        updateDatabase = false
-                    }
+            AlertDialog(onDismissRequest = {
+                showAlert = false
+            }, title = {
+                Text(text = "Info")
+            }, text = {
+                Text(text)
+            }, confirmButton = {
+                Button(onClick = {
+                    showAlert = false
+                }) {
+                    Text("Close")
                 }
-            }
-
-            randomCatPictureUrl?.let {
-                Image(
-                    painter = rememberImagePainter(data = randomCatPictureUrl),
-                    contentDescription = "Cat Image",
-                    modifier = Modifier.fillMaxWidth(),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            })
         }
     }
 }
+
 @Preview
 @Composable
 fun PreviewSettingsUI () {
-    SettingsUI.ContentState(10, {}, {})
+    ContentScreen(
+        currentCatsAmount = 10,
+        onNavigateToOverview = {},
+        onGenerateCatsClicked = { },
+        onDumpDatabaseClicked = { },
+        onGenerateNewDatabaseClicked = { },
+        onGenerateRandomCatPictureClick = { },
+        randomCatPictureUrl = "randomCatPictureUrl"
+    )
 }

@@ -3,7 +3,9 @@ package com.example.abgabe.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.data.local.CatDao
 import com.example.abgabe.data.remote.getCats
 import com.example.abgabe.ui.states.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,55 +16,61 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val database: AppDatabase,
+    private val catDao: CatDao,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
-        loadInitialData()
+        loadData()
     }
 
-    private fun loadInitialData() {
+    private fun loadData() {
         viewModelScope.launch {
-            val initialAmount = getDatabaseSize()
+            _uiState.value = SettingsUiState.Loading
+            val initialAmount = getDBSize()
             _uiState.value = if (initialAmount > 0) {
                 SettingsUiState.Content(initialAmount)
             } else {
-                SettingsUiState.DatabaseEmpty
+                SettingsUiState.EmptyDatabase
             }
         }
     }
 
-    fun onDumpDatabaseClicked() {
+    fun dumpDatabase() {
         viewModelScope.launch {
             _uiState.value = SettingsUiState.DumpingDatabase
             withContext(Dispatchers.IO) {
-                database.catDao().deleteAll()
+                catDao.deleteAll()
             }
-            _uiState.value = SettingsUiState.DatabaseEmpty
+            _uiState.value = SettingsUiState.EmptyDatabase
         }
     }
 
-    fun onGenerateCatsClicked(amount: Int, context: Context) {
+    fun generateCat(amount: Int, context: Context) {
         viewModelScope.launch {
-            _uiState.value = SettingsUiState.Loading
-            withContext(Dispatchers.IO) {
-                getCats(if (amount > 0) amount else 10, context)
-                    .forEach { database.catDao().insert(it) }
+            _uiState.value = SettingsUiState.UpdatingDatabase(getDBSize(), amount)
+            val amountDifference = amount - getDBSize()
+            if (amountDifference > 0) {
+                val cats = withContext(Dispatchers.IO) {
+                    getCats(amountDifference, context)
+                }
+                catDao.insertAll(cats)
+                _uiState.value = SettingsUiState.Content(getDBSize())
             }
-            _uiState.value = SettingsUiState.Content(getDatabaseSize())
+            else{
+                _uiState.value = SettingsUiState.Error
+            }
         }
     }
 
-    private suspend fun getDatabaseSize(): Int {
+    private suspend fun getDBSize(): Int {
         return withContext(Dispatchers.IO) {
-            database.catDao().getAll().size
+            catDao.getCount()
         }
     }
 }

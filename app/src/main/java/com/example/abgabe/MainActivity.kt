@@ -18,11 +18,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.ui.theme.AbgabeTheme
-import com.example.abgabe.ui.views.CatOverviewUI
+import com.example.abgabe.ui.views.OverviewUI
 import com.example.abgabe.ui.views.QRCodeUI.QrCodeScannerScreen
-import com.example.abgabe.ui.views.SettingsUI.HandleDatabaseContent
+import com.example.abgabe.ui.views.SettingsUI
 import com.example.abgabe.utils.QrCodeScannerViewModel
-import com.example.abgabe.viewmodels.CatOverviewViewModel
+import com.example.abgabe.viewmodels.OverviewViewModel
 import com.example.abgabe.viewmodels.DetailViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
 import com.google.zxing.integration.android.IntentIntegrator
@@ -33,7 +33,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     // ViewModels
-    private val homeScreenViewModel: CatOverviewViewModel by viewModels()
+    private val homeScreenViewModel: OverviewViewModel by viewModels()
     private val detailScreenViewModel: DetailViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val qrCodeScannerViewModel: QrCodeScannerViewModel by viewModels()
@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController, startDestination = "API") {
                         composable("API") {
                             val uiState by homeScreenViewModel.uiState.collectAsState()
-                            CatOverviewUI.Content(
+                            OverviewUI.Content(
                                 uiState = uiState,
                                 onNavigateToQR = { navController.navigate("QR") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
@@ -82,10 +82,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("Settings") {
-                            val uiState = settingsViewModel.uiState.collectAsState()
-                            HandleDatabaseContent(context = this@MainActivity,viewModel = settingsViewModel, uiState = uiState.value, onNavigateToOverview = {
+                            val uiState by settingsViewModel.uiState.collectAsState()
+                            SettingsUI.SettingsScreen(viewModel = settingsViewModel, uiState = uiState, onNavigateToOverview = {
                                 navController.navigate("API")
-                            })
+                            }, context = this@MainActivity)
                         }
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")

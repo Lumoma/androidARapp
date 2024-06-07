@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.Cat
-import com.example.abgabe.ui.states.CatOverviewUiState
+import com.example.abgabe.ui.states.OverviewUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +15,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CatOverviewViewModel @Inject constructor(
-    private val catDatabase: AppDatabase
+class OverviewViewModel @Inject constructor(
+    private val database: AppDatabase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<CatOverviewUiState>(CatOverviewUiState.Loading)
-    val uiState: StateFlow<CatOverviewUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<OverviewUiState>(OverviewUiState.Loading)
+    val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
 
     init {
         loadCats()
@@ -28,11 +28,11 @@ class CatOverviewViewModel @Inject constructor(
 
     fun loadCats() {
         viewModelScope.launch {
-            catDatabase.catDao().getCatsOrderedByName().collect { cats ->
+            database.catDao().getCatsOrderedByName().collect { cats ->
                 _uiState.value = if (cats.isNotEmpty()) {
-                    CatOverviewUiState.Success(cats)
+                    OverviewUiState.Content(cats)
                 } else {
-                    CatOverviewUiState.EmptyDatabase
+                    OverviewUiState.EmptyDatabase
                 }
             }
         }
@@ -40,7 +40,7 @@ class CatOverviewViewModel @Inject constructor(
 
     fun addCat(cat: Cat) {
         viewModelScope.launch(Dispatchers.IO) {
-            catDatabase.catDao().insert(cat)
+            database.catDao().insert(cat)
             loadCats()
         }
     }

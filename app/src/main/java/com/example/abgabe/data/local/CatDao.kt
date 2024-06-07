@@ -14,6 +14,8 @@ interface CatDao {
     @Insert
     fun insert(cat: Cat)
 
+    @Insert
+    fun insertAll(cats: List<Cat>)
 
     @Query("SELECT * FROM cat")
     fun getAll(): List<Cat>
@@ -29,8 +31,8 @@ interface CatDao {
 
     @Query("SELECT * FROM cat ORDER BY breed ASC")
     fun getCatsOrderedByBreed(): Flow<List<Cat>>
-
-
+    @Query("SELECT COUNT(*) FROM cat")
+    fun getCount(): Int
 
     @Update
     fun updateCatInfos(cat: Cat)

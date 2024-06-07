@@ -1,6 +1,5 @@
 package com.example.abgabe.ui.views
 
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,16 +49,15 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.abgabe.data.local.Cat
 import com.example.abgabe.data.remote.generateQRCodeByteCodeFromUUID
-import com.example.abgabe.ui.states.CatOverviewUiState
-import com.example.abgabe.viewmodels.CatOverviewViewModel
+import com.example.abgabe.ui.states.OverviewUiState
 import java.util.UUID
 
-object CatOverviewUI {
+object OverviewUI {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Content(
-        uiState: CatOverviewUiState,
+        uiState: OverviewUiState,
         onNavigateToQR: () -> Unit,
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
@@ -122,7 +120,7 @@ object CatOverviewUI {
                     .padding(innerPadding)
             ) {
                 when (uiState) {
-                    CatOverviewUiState.Loading -> {
+                    OverviewUiState.Loading -> {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -134,7 +132,7 @@ object CatOverviewUI {
                         }
                     }
 
-                    CatOverviewUiState.EmptyDatabase -> {
+                    OverviewUiState.EmptyDatabase -> {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -146,7 +144,7 @@ object CatOverviewUI {
                         }
                     }
 
-                    is CatOverviewUiState.Success -> {
+                    is OverviewUiState.Content -> {
                         ImageGrid(uiState.cats) { cat ->
                             onNavigateToDetail(cat.id.toString())
                         }
@@ -284,8 +282,8 @@ object CatOverviewUI {
 @Preview
 @Composable
 fun CatOverviewUIPreview() {
-    CatOverviewUI.Content(
-        uiState = CatOverviewUiState.Success(
+    OverviewUI.Content(
+        uiState = OverviewUiState.Content(
             cats = listOf(
                 Cat(
                     id = UUID.randomUUID(),
@@ -294,7 +292,7 @@ fun CatOverviewUIPreview() {
                     temperament = "Temperament 1",
                     origin = "Origin 1",
                     lifeExpectancy = "Life Expectancy 1",
-                    imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg",
+                    imageUrl = "https://cdn2.thecatapi.com/images/cbv.jpg",
                     qrCodePath = "qrCodePath",
                     qrCodeByteArray = byteArrayOf(0, 1, 2, 3)
                 ),
@@ -305,7 +303,7 @@ fun CatOverviewUIPreview() {
                     temperament = "Temperament 2",
                     origin = "Origin 2",
                     lifeExpectancy = "Life Expectancy 2",
-                    imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg",
+                    imageUrl = "https://cdn2.thecatapi.com/images/cbv.jpg",
                     qrCodePath = "qrCodePath",
                     qrCodeByteArray = byteArrayOf(0, 1, 2, 3)
                 ),
@@ -316,7 +314,7 @@ fun CatOverviewUIPreview() {
                     temperament = "Temperament 3",
                     origin = "Origin 3",
                     lifeExpectancy = "Life Expectancy 3",
-                    imageUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwMw.jpg",
+                    imageUrl = "https://cdn2.thecatapi.com/images/cbv.jpg",
                     qrCodePath = "qrCodePath",
                     qrCodeByteArray = byteArrayOf(0, 1, 2, 3)
                 ),

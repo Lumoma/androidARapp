@@ -26,4 +26,5 @@ object DatabaseModule {
     @Singleton
     fun provideCatDao(appDatabase: AppDatabase) = appDatabase.catDao()
 
+
 }

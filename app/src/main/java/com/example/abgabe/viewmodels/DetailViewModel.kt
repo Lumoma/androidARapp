@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -273,4 +274,10 @@ fun DisplayQRCodeLink(qrCodeFilePath: String, context: Context) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewDetailScreen() {
+
 }
