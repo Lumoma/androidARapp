@@ -3,10 +3,9 @@ package com.example.abgabe.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.data.local.CatDao
 import com.example.abgabe.data.remote.getCats
+import com.example.abgabe.data.remote.getRandomCatPictureAPI
 import com.example.abgabe.ui.states.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +33,7 @@ class SettingsViewModel @Inject constructor(
             _uiState.value = SettingsUiState.Loading
             val initialAmount = getDBSize()
             _uiState.value = if (initialAmount > 0) {
-                SettingsUiState.Content(initialAmount)
+                SettingsUiState.Content(initialAmount, getRandomCatPicture())
             } else {
                 SettingsUiState.EmptyDatabase
             }
@@ -43,28 +42,56 @@ class SettingsViewModel @Inject constructor(
 
     fun dumpDatabase() {
         viewModelScope.launch {
-            _uiState.value = SettingsUiState.DumpingDatabase
+            _uiState.value = SettingsUiState.Loading
             withContext(Dispatchers.IO) {
                 catDao.deleteAll()
             }
+            _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
             _uiState.value = SettingsUiState.EmptyDatabase
         }
     }
 
-    fun generateCat(amount: Int, context: Context) {
+    fun generateAmountOfCats(amount: Int, context: Context) {
         viewModelScope.launch {
-            _uiState.value = SettingsUiState.UpdatingDatabase(getDBSize(), amount)
+            _uiState.value = SettingsUiState.Loading
             val amountDifference = amount - getDBSize()
             if (amountDifference > 0) {
                 val cats = withContext(Dispatchers.IO) {
                     getCats(amountDifference, context)
                 }
-                catDao.insertAll(cats)
-                _uiState.value = SettingsUiState.Content(getDBSize())
+                withContext(Dispatchers.IO) {
+                    catDao.insertAll(cats)
+                }
+                _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
             }
             else{
                 _uiState.value = SettingsUiState.Error
             }
+        }
+    }
+
+    fun generateNewDatabase(context: Context) {
+        viewModelScope.launch {
+            _uiState.value = SettingsUiState.Loading
+            val cats = withContext(Dispatchers.IO) {
+                getCats(10, context)
+            }
+            withContext(Dispatchers.IO) {
+                catDao.insertAll(cats)
+            }
+            _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
+        }
+    }
+
+    private suspend fun getRandomCatPicture(): String {
+        return withContext(Dispatchers.IO) {
+            getRandomCatPictureAPI()
+        }
+    }
+
+    fun showContent(){
+        viewModelScope.launch {
+            _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
         }
     }
 

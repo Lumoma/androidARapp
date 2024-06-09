@@ -34,10 +34,10 @@ val client = HttpClient(CIO){
 }
 
 val apiKey = "live_RhoeIS1CZSQxrEYGaUiRbmNCGUsUvBrqJsml10ApSBodOteF8DtYzIyE0kthZ6jM"
-//val alternativeApiKey = "live_bqJ3cWHZ7TjaUm2rHHhHdHBhCk857LUHRHzThCcj0PhW65tFz5lS3toZwY61V7R6"
+val randomPicApiKey = "live_bqJ3cWHZ7TjaUm2rHHhHdHBhCk857LUHRHzThCcj0PhW65tFz5lS3toZwY61V7R6"
 
-suspend fun getRandomCatPicture(): String {
-    val url = "https://api.thecatapi.com/v1/images/search?limit=1"
+suspend fun getRandomCatPictureAPI(): String {
+    val url = "https://api.thecatapi.com/v1/images/search?limit=1&api_key=$randomPicApiKey"
     return client.get(url).body<List<CatPicData>>().map { it.url }.first()
 }
 
