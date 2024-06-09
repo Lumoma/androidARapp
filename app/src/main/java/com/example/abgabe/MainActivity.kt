@@ -88,13 +88,13 @@ class MainActivity : ComponentActivity() {
                         composable("Settings") {
                             val uiState by settingsViewModel.uiState.collectAsState()
                             SettingsUI.SettingsScreen(viewModel = settingsViewModel, uiState = uiState, onNavigateToOverview = {
-                                navController.navigate("API")
+                                navController.navigate("Overview")
                             }, context = this@MainActivity)
                         }
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")
                             detailScreenViewModel.DetailScreen(context = this@MainActivity, id = id, onNavigateToOverview = {
-                                navController.navigate("API")
+                                navController.navigate("Overview") {homeScreenViewModel.loadCats()}
                             })
                         }
                     }
