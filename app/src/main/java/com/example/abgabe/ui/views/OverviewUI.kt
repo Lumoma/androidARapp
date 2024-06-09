@@ -28,6 +28,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +40,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -72,12 +74,8 @@ object OverviewUI {
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
         onGenerateNewPictureURL: () -> Unit,
-        randomCatPictureUrl: String,
         context: Context,
     ) {
-        val coroutineScope = rememberCoroutineScope()
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
         Scaffold(
             topBar = {
                 HandleTopBar(
@@ -86,11 +84,9 @@ object OverviewUI {
                 )
             },
             bottomBar = {
-                HandleBottomBar(
-                    onAddNewCat = {
-                        viewModel.showAddCat()
-                    }
-                )
+               if ( uiState is OverviewUiState.Content){
+                        HandleBottomBarOverview(onAddNewCat = { viewModel.showAddCat() })
+               }
             },
         ) { innerPadding ->
             Box(
@@ -165,7 +161,7 @@ object OverviewUI {
     }
 
     @Composable
-    fun HandleBottomBar(onAddNewCat: () -> Unit){
+    fun HandleBottomBarOverview(onAddNewCat: () -> Unit){
         BottomAppBar(
             actions = {},
             floatingActionButton = {
@@ -241,12 +237,6 @@ object OverviewUI {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(8.dp),
-                    colors = CardColors(
-                        containerColor = colorScheme.secondaryContainer,
-                        contentColor = colorScheme.onPrimaryContainer,
-                        disabledContainerColor = colorScheme.secondaryContainer,
-                        disabledContentColor = colorScheme.onPrimaryContainer
-                    ),
                 ){
                     Card(
                         modifier = Modifier
@@ -254,7 +244,9 @@ object OverviewUI {
                             .padding(8.dp),
                         shape = RoundedCornerShape(8.dp),
                     ) {
-                        Box {
+                        Box(
+                            modifier = Modifier.padding(8.dp)
+                        ) {
                             var imageState by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
 
                             AsyncImage(
@@ -281,46 +273,53 @@ object OverviewUI {
                             }
                         }
                     }
-                    TextField(
-                        modifier = Modifier.padding(8.dp),
-                        value = catName,
-                        onValueChange = { catName = it },
-                        label = { Text("Name") },
-                        singleLine = true,
-                        keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
-                    )
-                    TextField(
-                        modifier = Modifier.padding(8.dp),
-                        value = catBreed,
-                        onValueChange = { catBreed = it },
-                        label = { Text("Breed") },
-                        singleLine = true,
-                        keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
-                    )
-                    TextField(
-                        modifier = Modifier.padding(8.dp),
-                        value = catTemperament,
-                        onValueChange = { catTemperament = it },
-                        label = { Text("Temperament") },
-                        singleLine = true,
-                        keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
-                    )
-                    TextField(
-                        modifier = Modifier.padding(8.dp),
-                        value = catOrigin,
-                        onValueChange = { catOrigin = it },
-                        label = { Text("Origin") },
-                        singleLine = true,
-                        keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
-                    )
-                    TextField(
-                        modifier = Modifier.padding(8.dp),
-                        value = catLifeExpectancy,
-                        onValueChange = { catLifeExpectancy = it },
-                        label = { Text("Life Expectancy") },
-                        singleLine = true,
-                        keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
-                    )
+                    Card(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        ) {
+                        TextField(
+                            modifier = Modifier.padding(8.dp),
+                            value = catName,
+                            onValueChange = { catName = it },
+                            label = { Text("Name") },
+                            singleLine = true,
+                            keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
+                        )
+                        TextField(
+                            modifier = Modifier.padding(8.dp),
+                            value = catBreed,
+                            onValueChange = { catBreed = it },
+                            label = { Text("Breed") },
+                            singleLine = true,
+                            keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
+                        )
+                        TextField(
+                            modifier = Modifier.padding(8.dp),
+                            value = catTemperament,
+                            onValueChange = { catTemperament = it },
+                            label = { Text("Temperament") },
+                            singleLine = true,
+                            keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
+                        )
+                        TextField(
+                            modifier = Modifier.padding(8.dp),
+                            value = catOrigin,
+                            onValueChange = { catOrigin = it },
+                            label = { Text("Origin") },
+                            singleLine = true,
+                            keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
+                        )
+                        TextField(
+                            modifier = Modifier.padding(8.dp),
+                            value = catLifeExpectancy,
+                            onValueChange = { catLifeExpectancy = it },
+                            label = { Text("Life Expectancy") },
+                            singleLine = true,
+                            keyboardActions = KeyboardActions(onSend = { keyboardController?.hide() })
+                        )
+                    }
                 }
             }
             item {
@@ -410,6 +409,43 @@ object OverviewUI {
         }
     }
 }
+
+@Preview
+@Composable
+fun PreviewOverviewScreen() {
+    OverviewUI.ContentScreen(
+        cats = listOf(
+            Cat(
+                id = UUID.randomUUID(),
+                name = "Minka",
+                breed = "Siamese",
+                temperament = "Calm",
+                origin = "Thailand",
+                lifeExpectancy = "15 years",
+                imageUrl = null.toString(),
+                qrCodePath = null.toString(),
+                qrCodeByteArray = null.toString().toByteArray()
+            ),
+            Cat(
+                id = UUID.randomUUID(),
+                name = "Lulu",
+                breed = "Bengal",
+                temperament = "Calm",
+                origin = "Thailand",
+                lifeExpectancy = "15 years",
+                imageUrl = null.toString(),
+                qrCodePath = null.toString(),
+                qrCodeByteArray = null.toString().toByteArray()
+            ),
+        ),
+        onNavigateToDetail = {},
+    )
+}
+
+
+
+
+
 
 @Preview
 @Composable

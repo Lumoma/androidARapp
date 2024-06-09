@@ -2,6 +2,7 @@ package com.example.abgabe.ui.views
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -20,10 +22,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import com.example.abgabe.ui.states.SettingsUiState
 import com.example.abgabe.ui.views.SettingsUI.ContentScreen
 import com.example.abgabe.viewmodels.SettingsViewModel
@@ -273,17 +278,46 @@ object SettingsUI {
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 16.dp)
         )
-        Button(
-            modifier = Modifier.padding(16.dp),
-            onClick = { onGenerateRandomCatPictureClick() }) {
-            Icon(Icons.Filled.AutoAwesome, contentDescription = "Generate Random Cat Picture")
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 10.dp),
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                var imageState by remember {
+                    mutableStateOf<AsyncImagePainter.State>(
+                        AsyncImagePainter.State.Empty
+                    )
+                }
+
+                AsyncImage(
+                    model = randomCatPictureUrl,
+                    contentDescription = "Cat Image",
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.Crop,
+                    onState = { state -> imageState = state }
+                )
+
+                if (imageState is AsyncImagePainter.State.Loading) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                }
+
+                FloatingActionButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp),
+                    onClick = { onGenerateRandomCatPictureClick() }) {
+                    Icon(
+                        Icons.Filled.AutoAwesome,
+                        contentDescription = "Generate Random Cat Picture"
+                    )
+                }
+            }
         }
-        AsyncImage(
-            model = randomCatPictureUrl,
-            contentDescription = "Cat Image",
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.Crop
-        )
     }
 
     @Composable

@@ -73,7 +73,6 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
                                 onGenerateNewPictureURL = { homeScreenViewModel.showAddCat() },
-                                randomCatPictureUrl = "",
                                 context = this@MainActivity
                             )
                         }
