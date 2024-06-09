@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.ui.theme.AbgabeTheme
+import com.example.abgabe.ui.views.DetailUI
 import com.example.abgabe.ui.views.OverviewUI
 import com.example.abgabe.ui.views.QRCodeUI.QrCodeScannerScreen
 import com.example.abgabe.ui.views.SettingsUI
@@ -92,7 +93,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")
-                            detailScreenViewModel.DetailScreen(context = this@MainActivity, id = id, onNavigateToOverview = {
+                            DetailUI.DetailScreen( viewModel = detailScreenViewModel, context = this@MainActivity, id = id, onNavigateToOverview = {
                                 navController.navigate("Overview") {homeScreenViewModel.loadCats()}
                             })
                         }
