@@ -110,7 +110,7 @@ object SettingsUI {
                     randomCatPictureUrl = randomCatPictureUrl
                 )
             }
-            is SettingsUiState.Error -> WishAlert { viewModel.showContent() }
+            is SettingsUiState.WrongWish -> WishAlert { viewModel.showContent() }
         }
     }
 

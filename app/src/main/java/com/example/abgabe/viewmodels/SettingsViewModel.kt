@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.abgabe.data.local.CatDao
-import com.example.abgabe.data.remote.getCats
-import com.example.abgabe.data.remote.getRandomCatPictureAPI
+import com.example.abgabe.data.remote.getCatsApi
+import com.example.abgabe.data.remote.getRandomCatPictureUrlFromApi
 import com.example.abgabe.ui.states.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +40,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun showContent(){
+        viewModelScope.launch {
+            _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
+        }
+    }
+
     fun dumpDatabase() {
         viewModelScope.launch {
             _uiState.value = SettingsUiState.Loading
@@ -57,7 +63,7 @@ class SettingsViewModel @Inject constructor(
             val amountDifference = amount - getDBSize()
             if (amountDifference > 0) {
                 val cats = withContext(Dispatchers.IO) {
-                    getCats(amountDifference, context)
+                    getCatsApi(amountDifference, context)
                 }
                 withContext(Dispatchers.IO) {
                     catDao.insertAll(cats)
@@ -65,7 +71,7 @@ class SettingsViewModel @Inject constructor(
                 _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
             }
             else{
-                _uiState.value = SettingsUiState.Error
+                _uiState.value = SettingsUiState.WrongWish
             }
         }
     }
@@ -74,7 +80,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = SettingsUiState.Loading
             val cats = withContext(Dispatchers.IO) {
-                getCats(10, context)
+                getCatsApi(10, context)
             }
             withContext(Dispatchers.IO) {
                 catDao.insertAll(cats)
@@ -85,13 +91,7 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun getRandomCatPicture(): String {
         return withContext(Dispatchers.IO) {
-            getRandomCatPictureAPI()
-        }
-    }
-
-    fun showContent(){
-        viewModelScope.launch {
-            _uiState.value = SettingsUiState.Content(getDBSize(), getRandomCatPicture())
+            getRandomCatPictureUrlFromApi()
         }
     }
 

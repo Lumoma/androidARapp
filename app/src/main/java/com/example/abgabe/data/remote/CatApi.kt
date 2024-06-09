@@ -36,12 +36,12 @@ val client = HttpClient(CIO){
 val apiKey = "live_RhoeIS1CZSQxrEYGaUiRbmNCGUsUvBrqJsml10ApSBodOteF8DtYzIyE0kthZ6jM"
 val randomPicApiKey = "live_bqJ3cWHZ7TjaUm2rHHhHdHBhCk857LUHRHzThCcj0PhW65tFz5lS3toZwY61V7R6"
 
-suspend fun getRandomCatPictureAPI(): String {
+suspend fun getRandomCatPictureUrlFromApi(): String {
     val url = "https://api.thecatapi.com/v1/images/search?limit=1&api_key=$randomPicApiKey"
     return client.get(url).body<List<CatPicData>>().map { it.url }.first()
 }
 
-suspend fun getCats(amount: Int, context: Context): List<Cat> {
+suspend fun getCatsApi(amount: Int, context: Context): List<Cat> {
     val url = "https://api.thecatapi.com/v1/images/search?limit=$amount&has_breeds=1&api_key=$apiKey"
     return client.get(url).body<List<CatApiData>>().map { convertToCat(it, context) }
 }
@@ -62,6 +62,7 @@ private suspend fun convertToCat(catApiData: CatApiData, context: Context): Cat 
         qrCodePath = generateQRCodeFromUUID(name, uuid, context)
     )
 }
+
 private fun getRandomCatName(): String {
     val catNames = listOf(
         "Whiskers",
@@ -115,6 +116,7 @@ private fun getRandomCatName(): String {
     )
     return catNames.random()
 }
+
  suspend fun generateQRCodeFromUUID(name: String, uuid: UUID, context: Context): String = withContext(Dispatchers.IO) {
     val qrCodeWriter = QRCodeWriter()
     val bitMatrix = qrCodeWriter.encode(uuid.toString(), BarcodeFormat.QR_CODE, 200, 200)
@@ -129,14 +131,19 @@ private fun getRandomCatName(): String {
         }
     }
 
-
     // Add cat name and UUID on the QR code
     val canvas = Canvas(bmp)
-    val paint = Paint().apply {
+    val paintName = Paint().apply {
         color = Color.RED
         textSize = 14f
     }
-    canvas.drawText("$name, $uuid" , 10f, 20f, paint)
+    val paintUUID = Paint().apply {
+        color = Color.BLUE
+        textSize = 8f
+    }
+
+    canvas.drawText(name, 10f, 20f, paintName)
+     canvas.drawText(uuid.toString(), 20f, 190f, paintUUID)
 
     //Start Coroutine to save the image to the storage
     var imagePath = ""

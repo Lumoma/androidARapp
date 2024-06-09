@@ -25,6 +25,4 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideCatDao(appDatabase: AppDatabase) = appDatabase.catDao()
-
-
 }
