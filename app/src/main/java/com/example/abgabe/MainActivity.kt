@@ -63,14 +63,18 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    NavHost(navController, startDestination = "API") {
-                        composable("API") {
+                    NavHost(navController, startDestination = "Overview") {
+                        composable("Overview") {
                             val uiState by homeScreenViewModel.uiState.collectAsState()
-                            OverviewUI.Content(
+                            OverviewUI.OverviewScreen(
+                                viewModel = homeScreenViewModel,
                                 uiState = uiState,
                                 onNavigateToQR = { navController.navigate("QR") },
                                 onNavigateToSettings = { navController.navigate("Settings") },
-                                onNavigateToDetail = { id -> navController.navigate("Detail/$id") }
+                                onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
+                                onGenerateNewPictureURL = { homeScreenViewModel.showAddCat() },
+                                randomCatPictureUrl = "",
+                                context = this@MainActivity
                             )
                         }
                         composable("QR") {

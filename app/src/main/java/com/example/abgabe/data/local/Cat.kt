@@ -13,8 +13,8 @@ data class Cat(
     val origin: String,
     val lifeExpectancy: String,
     val imageUrl: String,
-    val qrCodePath: String,
-    val qrCodeByteArray: ByteArray
+    var qrCodePath: String,
+    var qrCodeByteArray: ByteArray
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
