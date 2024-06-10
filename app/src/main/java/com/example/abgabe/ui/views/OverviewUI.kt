@@ -114,6 +114,7 @@ object OverviewUI {
                         AddNewCatScreen(
                             onGenerateNewPictureURL = onGenerateNewPictureURL,
                             randomCatPictureUrl =uiState.pictureUrl,
+                            onBackToOverview = { viewModel.loadCats() },
                             onSaveNewCat = { cat ->
                                 viewModel.addCatToDatabase(cat, context)
                             },
@@ -218,6 +219,7 @@ object OverviewUI {
     fun AddNewCatScreen(
         onGenerateNewPictureURL: () -> Unit,
         onSaveNewCat: (Cat) -> Unit,
+        onBackToOverview: () -> Unit,
         randomCatPictureUrl: String,
     ) {
         var catName by remember { mutableStateOf("") }
@@ -325,9 +327,14 @@ object OverviewUI {
                 Row(
                     modifier = Modifier.fillMaxWidth()
                         .padding(8.dp),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween
 
                 ) {
+                    Button(
+                        onClick = { onBackToOverview() }
+                    ) {
+                        Text("Back")
+                    }
                     Button(
                         onClick = {
                             val newCat = Cat(
@@ -452,6 +459,7 @@ fun PreviewAddNewCatScreen() {
     OverviewUI.AddNewCatScreen(
         onGenerateNewPictureURL = {},
         onSaveNewCat = {},
+        onBackToOverview = {},
         randomCatPictureUrl = "https://cdn2.thecatapi.com/images/MTYwNjQwNQ.jpg"
     )
 }

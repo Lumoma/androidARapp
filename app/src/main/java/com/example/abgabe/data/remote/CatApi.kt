@@ -38,15 +38,17 @@ val randomPicApiKey = "live_bqJ3cWHZ7TjaUm2rHHhHdHBhCk857LUHRHzThCcj0PhW65tFz5lS
 
 suspend fun getRandomCatPictureUrlFromApi(): String {
     val url = "https://api.thecatapi.com/v1/images/search?limit=1&api_key=$randomPicApiKey"
-    return client.get(url).body<List<CatPicData>>().map { it.url }.first()
+    return client.get(url).body<List<CatPicData>>().map { it.url }.first() //Serialization is done by Ktor
 }
 
 suspend fun getCatsApi(amount: Int, context: Context): List<Cat> {
     val url = "https://api.thecatapi.com/v1/images/search?limit=$amount&has_breeds=1&api_key=$apiKey"
-    return client.get(url).body<List<CatApiData>>().map { convertToCat(it, context) }
+    return client.get(url).body<List<CatApiData>>().map { convertToCat(it, context) } //Serialization is done by Ktor
 }
 
 private suspend fun convertToCat(catApiData: CatApiData, context: Context): Cat {
+
+    //Generate all missing data and return it as Cat object
     val uuid = UUID.randomUUID()
     val name = getRandomCatName()
     val breed = catApiData.breeds.first()

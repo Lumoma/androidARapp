@@ -30,7 +30,7 @@ class DetailViewModel @Inject constructor(
         refreshCat()
     }
 
-    fun refreshCat() {
+    private fun refreshCat() {
         viewModelScope.launch {
             catId?.let {
                 withContext(Dispatchers.IO) {
@@ -40,7 +40,7 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    fun updateCat(cat: Cat) {
+    private fun updateCat(cat: Cat) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 catDao.updateCatInfos(cat)

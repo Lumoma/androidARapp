@@ -26,7 +26,6 @@ class CameraScreenViewModel @Inject constructor(
     }
 
     fun onQrCodeScanned(scannedText: String) {
-
         viewModelScope.launch(Dispatchers.IO) {
             val cat = catDao.getCatByIdUUID(UUID.fromString(scannedText))
             if (cat != null) {
