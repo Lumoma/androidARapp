@@ -7,5 +7,4 @@ sealed interface OverviewUiState {
     data class Content(val cats: List<Cat>) : OverviewUiState
     data object EmptyDatabase : OverviewUiState
     data class AddCat(val pictureUrl: String) : OverviewUiState
-    data class Error(val message: String) : OverviewUiState
 }

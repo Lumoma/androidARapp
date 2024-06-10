@@ -20,9 +20,9 @@ import com.example.abgabe.data.local.AppDatabase
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.DetailUI
 import com.example.abgabe.ui.views.OverviewUI
-import com.example.abgabe.ui.views.QRCodeUI.QrCodeScannerScreen
+import com.example.abgabe.ui.views.CameraUI.QrCodeScannerScreen
 import com.example.abgabe.ui.views.SettingsUI
-import com.example.abgabe.utils.QrCodeScannerViewModel
+import com.example.abgabe.viewmodels.CameraScreenViewModel
 import com.example.abgabe.viewmodels.OverviewViewModel
 import com.example.abgabe.viewmodels.DetailViewModel
 import com.example.abgabe.viewmodels.SettingsViewModel
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
     private val homeScreenViewModel: OverviewViewModel by viewModels()
     private val detailScreenViewModel: DetailViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-    private val qrCodeScannerViewModel: QrCodeScannerViewModel by viewModels()
+    private val qrCodeScannerViewModel: CameraScreenViewModel by viewModels()
 
     @Inject
     lateinit var db: AppDatabase
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                             OverviewUI.OverviewScreen(
                                 viewModel = homeScreenViewModel,
                                 uiState = uiState,
-                                onNavigateToQR = { navController.navigate("QR") },
+                                onNavigateToQR = { navController.navigate("QR") {qrCodeScannerViewModel.resetScannedCatId()} },
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
                                 onGenerateNewPictureURL = { homeScreenViewModel.showAddCat() },

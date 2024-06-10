@@ -69,53 +69,61 @@ object SettingsUI {
     ) {
         val coroutineScope = rememberCoroutineScope()
 
-        when (uiState) {
-            is SettingsUiState.Loading -> {
-                LoadingState("Loading...")
-            }
-            is SettingsUiState.EmptyDatabase -> {
-                FillDatabaseQuestion(
-                    onYesClick = {
-                        coroutineScope.launch {
-                            viewModel.generateNewDatabase(context)
-                        }
-                    },
-                    onNoClick = {
-                        viewModel.showContent()
+        Scaffold(
+            topBar = {
+                HandleTopBar(onNavigateToOverview)
+            },
+            bottomBar = {
+                if (uiState is SettingsUiState.Content)
+                HandleBottomBar(
+                    onDumpDatabaseClicked = {viewModel.dumpDatabase()},
+                    onGenerateNewDatabaseClicked = {viewModel.generateNewDatabase(context)}
+                )
+            },
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier.padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                when (uiState) {
+                    is SettingsUiState.Loading -> {
+                        LoadingState("Loading...")
                     }
-                )
-            }
-            is SettingsUiState.Content -> {
-                val currentCatsAmount = uiState.currentCatsAmount
-                val randomCatPictureUrl  = uiState.currentRandomCatPic
+                    is SettingsUiState.EmptyDatabase -> {
+                        FillDatabaseQuestion(
+                            onYesClick = {
+                                coroutineScope.launch {
+                                    viewModel.generateNewDatabase(context)
+                                }
+                            },
+                            onNoClick = {
+                                viewModel.showContent()
+                            }
+                        )
+                    }
+                    is SettingsUiState.Content -> {
+                        val currentCatsAmount = uiState.currentCatsAmount
+                        val randomCatPictureUrl = uiState.currentRandomCatPic
 
-                ContentScreen(
-                    currentCatsAmount = currentCatsAmount,
-                    onNavigateToOverview = onNavigateToOverview,
-                    onGenerateCatsClicked = { amount ->
-                        coroutineScope.launch {
-                            viewModel.generateAmountOfCats(amount, context)
-                        }
-                    },
-                    onDumpDatabaseClicked = {
-                        coroutineScope.launch {
-                            viewModel.dumpDatabase()
-                        }
-                    },
-                    onGenerateNewDatabaseClicked = {
-                        coroutineScope.launch {
-                            viewModel.generateNewDatabase(context)
-                        }
-                    },
-                    onGenerateRandomCatPictureClick = {
-                        coroutineScope.launch {
-                            viewModel.showContent()
-                        }
-                    },
-                    randomCatPictureUrl = randomCatPictureUrl
-                )
+                        ContentScreen(
+
+                            currentCatsAmount = currentCatsAmount,
+                            onGenerateCatsClicked = { amount ->
+                                coroutineScope.launch {
+                                    viewModel.generateAmountOfCats(amount, context)
+                                }
+                            },
+                            onGenerateRandomCatPictureClick = {
+                                coroutineScope.launch {
+                                    viewModel.showContent()
+                                }
+                            },
+                            randomCatPictureUrl = randomCatPictureUrl
+                        )
+                    }
+                    is SettingsUiState.WrongWish -> WishAlert { viewModel.showContent() }
+                }
             }
-            is SettingsUiState.WrongWish -> WishAlert { viewModel.showContent() }
         }
     }
 
@@ -123,45 +131,29 @@ object SettingsUI {
     @Composable
     fun ContentScreen(
         currentCatsAmount: Int,
-        onNavigateToOverview: () -> Unit,
         onGenerateCatsClicked: (Int) -> Unit,
-        onDumpDatabaseClicked: () -> Unit,
-        onGenerateNewDatabaseClicked: () -> Unit,
         onGenerateRandomCatPictureClick: () -> Unit,
         randomCatPictureUrl: String?
     ) {
-        Scaffold(
-            topBar = {
-                HandleTopBar(onNavigateToOverview)
-            },
-            bottomBar = {
-                HandleBottomBar(
-                    onDumpDatabaseClicked = onDumpDatabaseClicked,
-                    onGenerateNewDatabaseClicked = onGenerateNewDatabaseClicked
-                )
-            },
-        ) { innerPadding ->
-            LazyColumn (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .padding(innerPadding)
-            ) {
-                item {
-                    CurrentCatAmount(currentCatAmount = currentCatsAmount)
-                }
-                item {
-                    HorizontalDivider(thickness = 2.dp)
-                }
-                item {
-                    CatGenerator(onGenerateCatsClick = { amount -> (onGenerateCatsClicked)(amount) })
-                }
-                item {
-                    HorizontalDivider(thickness = 2.dp)
-                }
-                item {
-                    RandomCatPictureGenerator( onGenerateRandomCatPictureClick = onGenerateRandomCatPictureClick, randomCatPictureUrl = randomCatPictureUrl)
-                }
+        LazyColumn (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            item {
+                CurrentCatAmount(currentCatAmount = currentCatsAmount)
+            }
+            item {
+                HorizontalDivider(thickness = 2.dp)
+            }
+            item {
+                CatGenerator(onGenerateCatsClick = { amount -> (onGenerateCatsClicked)(amount) })
+            }
+            item {
+                HorizontalDivider(thickness = 2.dp)
+            }
+            item {
+                RandomCatPictureGenerator( onGenerateRandomCatPictureClick = onGenerateRandomCatPictureClick, randomCatPictureUrl = randomCatPictureUrl)
             }
         }
     }
@@ -403,10 +395,7 @@ object SettingsUI {
 fun PreviewSettingsUI () {
     ContentScreen(
         currentCatsAmount = 10,
-        onNavigateToOverview = {},
         onGenerateCatsClicked = { },
-        onDumpDatabaseClicked = { },
-        onGenerateNewDatabaseClicked = { },
         onGenerateRandomCatPictureClick = { },
         randomCatPictureUrl = "randomCatPictureUrl"
     )

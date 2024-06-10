@@ -48,6 +48,12 @@ class DetailViewModel @Inject constructor(
         }
     }
 
+    fun deleteCatFromDatabase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            cat?.let { catDao.delete(it) }
+        }
+    }
+
     fun updateAndRefreshCat(catName: String? = null, catBreed: String? = null, catTemperament: String? = null, catOrigin: String? = null, catLifeExpectancy: String? = null) {
     viewModelScope.launch {
         withContext(Dispatchers.IO) {

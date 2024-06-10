@@ -119,7 +119,6 @@ object OverviewUI {
                             },
                         )
                     }
-                    is OverviewUiState.Error -> TODO()
                 }
             }
         }

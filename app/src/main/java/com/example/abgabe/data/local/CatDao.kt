@@ -37,8 +37,6 @@ interface CatDao {
     @Update
     fun updateCatInfos(cat: Cat)
 
-
-
     @Delete
     fun delete(cat: Cat)
 

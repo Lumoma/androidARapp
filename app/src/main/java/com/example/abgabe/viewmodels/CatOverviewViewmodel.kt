@@ -27,6 +27,7 @@ class OverviewViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<OverviewUiState>(OverviewUiState.Loading)
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
+    
 
     init {
         loadCats()
@@ -51,13 +52,6 @@ class OverviewViewModel @Inject constructor(
             cat.qrCodePath = generateQRCodeFromUUID(cat.name, cat.id, context)
             cat.qrCodeByteArray = generateQRCodeByteCodeFromUUID(cat.id)
             catDao.insert(cat)
-            loadCats()
-        }
-    }
-
-    fun deleteCatFromDatabase(cat: Cat) {
-        viewModelScope.launch(Dispatchers.IO) {
-            catDao.delete(cat)
             loadCats()
         }
     }

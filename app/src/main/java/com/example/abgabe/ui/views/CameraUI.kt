@@ -8,11 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,7 +17,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,15 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.abgabe.utils.QrCodeScannerViewModel
+import com.example.abgabe.viewmodels.CameraScreenViewModel
 import com.google.zxing.integration.android.IntentIntegrator
 
-object QRCodeUI {
+object CameraUI {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun QrCodeScannerScreen(
-        viewModel: QrCodeScannerViewModel,
+        viewModel: CameraScreenViewModel,
         onNavigateToOverview: () -> Unit,
         onCatFound: (String) -> Unit
     ) {
@@ -75,6 +70,13 @@ object QRCodeUI {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val validCatFound by viewModel.validCatFound.observeAsState()
+                    validCatFound?.let {
+                        if (!it) {
+                            Text("No cat found")
+                        }
+                    }
+
                     val context = LocalContext.current
                     Button(onClick = {
                         IntentIntegrator(context as Activity).initiateScan()

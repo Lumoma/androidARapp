@@ -76,12 +76,10 @@ dependencies {
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
 
-    // Retrofit und Gson
-    implementation libs.converter.gson
-
-    // ARCore
+    // AR
     implementation libs.android.ar.core
     implementation libs.androidx.core.ktx
+    implementation libs.obj
 
     // ZXing (QR-Code)
     implementation libs.zxing.android.embedded
@@ -90,45 +88,40 @@ dependencies {
     implementation(libs.coil.compose)
 
     //Dependency Injection
+        //Dagger - Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 
-    //Dagger - Hilt
-    implementation("com.google.dagger:hilt-android:2.46")
-    kapt("com.google.dagger:hilt-android-compiler:2.46")
+        // OPTIONAL: For instrumentation tests
+    androidTestImplementation  libs.hilt.android.testing
+    kaptAndroidTest libs.hilt.compiler
 
-    // OPTIONAL: For instrumentation tests
-    androidTestImplementation  'com.google.dagger:hilt-android-testing:2.46'
-    kaptAndroidTest 'com.google.dagger:hilt-compiler:2.46'
-
-    // OPTIONAL: For local unit tests
-    testImplementation 'com.google.dagger:hilt-android-testing:2.46'
-    kaptTest 'com.google.dagger:hilt-compiler:2.46'
+        // OPTIONAL: For local unit tests
+    testImplementation libs.hilt.android.testing
+    kaptTest libs.hilt.compiler
 
     // Room
-    def room_version = "2.6.1"
-    implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-
-    //AR
-    implementation libs.obj
+    implementation libs.androidx.room.runtime
+    annotationProcessor libs.androidx.room.compiler
+    implementation libs.androidx.room.ktx
+    kapt libs.androidx.room.compiler
 
     //Ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
-    implementation "io.ktor:ktor-client-json:$ktor_version"
-    implementation "io.ktor:ktor-client-serialization:$ktor_version"
-    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
-    implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
+    implementation libs.ktor.client.json
+    implementation libs.ktor.client.serialization
+    implementation libs.ktor.serialization.kotlinx.json
+    implementation libs.ktor.client.content.negotiation
 
     //Kotlinx Serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
+    implementation libs.kotlinx.serialization.json
 
     //Coil (Bildverarbeitung)
     implementation libs.coil.compose
 
     //Icons
-    implementation "androidx.compose.material:material-icons-extended:1.6.7"
+    implementation libs.androidx.material.icons.extended
 }
 
 // Allow references to generated code
