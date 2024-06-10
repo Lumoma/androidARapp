@@ -69,7 +69,7 @@ fun DetailScreen(
             viewModel.setCatId(id ?: return@launch)
         }
     }
-        ContentScreen(viewModel, onNavigateToOverview, id = id ?: "", context = context)
+        ContentScreen(viewModel, onNavigateToOverview, context = context)
 }
 
     @Composable
@@ -92,11 +92,8 @@ fun DetailScreen(
         viewModel: DetailViewModel,
         onNavigateToOverview: () -> Unit,
         context: Context,
-        id: String
     ){
         var showDialog by remember { mutableStateOf(false) }
-
-        val coroutineScope = rememberCoroutineScope()
 
         var catName by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.name ?: "") }
         var catBreed by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.breed ?: "") }
