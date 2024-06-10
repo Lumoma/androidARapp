@@ -82,6 +82,9 @@ class MainActivity : ComponentActivity() {
                                 viewModel = qrCodeScannerViewModel,
                                 onCatFound = {
                                         id -> navController.navigate("Detail/$id")
+                                },
+                                onNavigateToOverview = {
+                                    navController.navigate("Overview")
                                 }
                             )
                         }
