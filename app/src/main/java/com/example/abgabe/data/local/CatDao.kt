@@ -30,7 +30,7 @@ interface CatDao {
     fun getCatsOrderedByName(): Flow<List<Cat>>
 
     @Query("SELECT * FROM cat ORDER BY breed ASC")
-    fun getCatsOrderedByBreed(): Flow<List<Cat>>
+    fun getCatsOrderedByBreed(): List<Cat>
     @Query("SELECT COUNT(*) FROM cat")
     fun getCount(): Int
 

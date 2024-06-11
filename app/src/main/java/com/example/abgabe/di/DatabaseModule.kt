@@ -3,6 +3,9 @@ package com.example.abgabe.di
 import android.content.Context
 import androidx.room.Room
 import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.data.remote.CatApi
+import com.example.abgabe.data.util.CatConverter
+import com.example.abgabe.data.util.QrCodeHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,4 +28,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideCatDao(appDatabase: AppDatabase) = appDatabase.catDao()
+
+    @Provides
+    @Singleton
+    fun provideQrCodeHelper(@ApplicationContext context: Context) = QrCodeHelper(context)
+
+    @Provides
+    @Singleton
+    fun provideCatConverter(qrCodeHelper: QrCodeHelper) = CatConverter(qrCodeHelper)
+
+    @Provides
+    @Singleton
+    fun provideCatApi(catConverter: CatConverter) = CatApi(catConverter)
 }

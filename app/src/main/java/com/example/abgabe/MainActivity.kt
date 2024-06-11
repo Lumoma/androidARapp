@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.abgabe.data.local.AppDatabase
+import com.example.abgabe.ui.states.OverviewUiState
 import com.example.abgabe.ui.theme.AbgabeTheme
 import com.example.abgabe.ui.views.DetailUI
 import com.example.abgabe.ui.views.OverviewUI
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToQR = { navController.navigate("QR") {qrCodeScannerViewModel.resetScannedCatId()} },
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
-                                onGenerateNewPictureURL = { homeScreenViewModel.showAddCat() },
+                                onGenerateNewPictureURL = { homeScreenViewModel.uiState.value.let { if (it is OverviewUiState.AddCat) it.generateNewPictureURL() } },
                                 context = this@MainActivity
                             )
                         }
@@ -97,7 +98,7 @@ class MainActivity : ComponentActivity() {
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")
                             DetailUI.DetailScreen( viewModel = detailScreenViewModel, context = this@MainActivity, id = id, onNavigateToOverview = {
-                                navController.navigate("Overview") {homeScreenViewModel.loadCats()}
+                                navController.navigate("Overview")
                             })
                         }
                     }
