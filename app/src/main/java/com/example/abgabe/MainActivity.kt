@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                             OverviewUI.OverviewScreen(
                                 viewModel = homeScreenViewModel,
                                 uiState = uiState,
-                                onNavigateToQR = { navController.navigate("QR") {qrCodeScannerViewModel.resetScannedCatId()} },
+                                onNavigateToQR = { navController.navigate("QR")},
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
                                 onGenerateNewPictureURL = { homeScreenViewModel.uiState.value.let { if (it is OverviewUiState.AddCat) it.generateNewPictureURL() } },

@@ -21,10 +21,6 @@ class CameraScreenViewModel @Inject constructor(
     val validCatFound = MutableLiveData<Boolean>()
     val scannedCatId: MutableLiveData<String?> get() = _scannedCatId
 
-    fun resetScannedCatId() {
-        _scannedCatId.value = null
-    }
-
     fun onQrCodeScanned(scannedText: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val cat = catDao.getCatByIdUUID(UUID.fromString(scannedText))

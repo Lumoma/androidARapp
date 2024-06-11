@@ -32,18 +32,8 @@ class OverviewViewModel @Inject constructor(
 
     val addCatToggle = MutableStateFlow(false)
 
-    var catListFlow: Flow<List<Cat>> = flowOf(emptyList())
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            catDao.getCatsOrderedByName().collect {
-                catListFlow = flowOf(it)
-            }
-        }
-    }
-
     val uiState: StateFlow<OverviewUiState> = combine(
-        catListFlow,
+        catDao.getCatsOrderedByName(),
         addCatToggle
     ) { cats, addCatState ->
         when {
@@ -68,7 +58,7 @@ class OverviewViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OverviewUiState.Loading)
 
-    fun addCatToDatabase(cat: Cat) {
+    private fun addCatToDatabase(cat: Cat) {
         viewModelScope.launch(Dispatchers.IO) {
             cat.qrCodePath = qrCodeHelper.generateQRCodeFromUUID(cat.name, cat.id)
             cat.qrCodeByteArray = qrCodeHelper.generateQRCodeByteCodeFromUUID(cat.id)
