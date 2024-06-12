@@ -37,6 +37,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.abgabe.data.local.Cat
 import com.example.abgabe.viewmodels.DetailViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -87,19 +89,18 @@ fun DetailScreen(
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
+@Composable
     fun ContentScreen(
         viewModel: DetailViewModel,
         onNavigateToOverview: () -> Unit,
         context: Context,
     ){
-        var showDialog by remember { mutableStateOf(false) }
-
-        var catName by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.name ?: "") }
-        var catBreed by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.breed ?: "") }
-        var catTemperament by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.temperament ?: "") }
-        var catOrigin by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.origin ?: "") }
-        var catLifeExpectancy by remember(viewModel.cat) { mutableStateOf(viewModel.cat?.lifeExpectancy ?: "") }
+        val showDialog by viewModel.catEditFlow.collectAsState()
+        val catName by viewModel.catNameFlow.collectAsState()
+        val catBreed by viewModel.catBreedFlow.collectAsState()
+        val catTemperament by viewModel.catTemperamentFlow.collectAsState()
+        val catOrigin by viewModel.catOriginFlow.collectAsState()
+        val catLifeExpectancy by viewModel.catLifeExpectancyFlow.collectAsState()
 
         Scaffold(
             topBar = {
@@ -109,12 +110,7 @@ fun DetailScreen(
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                     title = {
-                        if (viewModel.cat == null) {
-                            Text("Error", maxLines = 1, overflow = TextOverflow.Clip)
-                        }
-                        else{
-                            Text(viewModel.cat?.name ?: "Loading...", maxLines = 1, overflow = TextOverflow.Clip)
-                        }
+                            Text(catName, maxLines = 1, overflow = TextOverflow.Clip)
                     },
                     navigationIcon = {
                         IconButton(onClick = { onNavigateToOverview() }) {
@@ -127,137 +123,116 @@ fun DetailScreen(
                 )
             },
             bottomBar = {
-                if (viewModel.cat != null) {
-                    BottomAppBar {
-                        Row(
-                            Modifier.fillMaxWidth()
-                                .padding(10.dp),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            FloatingActionButton(onClick = { showDialog = true }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Add")
-                            }
-                            FloatingActionButton(onClick = {
-                                onNavigateToOverview()
-                                viewModel.deleteCatFromDatabase()
-                            }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
+                BottomAppBar {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        FloatingActionButton(onClick = {viewModel.openEditWindow()}) {
+                            Icon(Icons.Default.Edit, contentDescription = "Add")
+                        }
+                        FloatingActionButton(onClick = {
+                            onNavigateToOverview()
+                            viewModel.deleteCatFromDatabase()
+                        }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
                         }
                     }
                 }
             },
         ) { innerPadding ->
-            if (viewModel.cat == null) {
-                ErrorScreen( innerPadding)
-            }
-            else {
-                DisplayCatDetails(viewModel, context, innerPadding)
-            }
-        }
+            val uiState by viewModel.uiState.collectAsState()
 
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text("Edit Cat") },
-                text = {
-                    Column {
-                        TextField(
-                            value = catName,
-                            onValueChange = { catName = it },
-                            label = { Text("Name") },
-                            singleLine = true
-                        )
-                        TextField(
-                            value = catBreed,
-                            onValueChange = { catBreed = it },
-                            label = { Text("Breed") },
-                            singleLine = true
-                        )
-                        TextField(
-                            value = catTemperament,
-                            onValueChange = { catTemperament = it },
-                            label = { Text("Temperament") },
-                            singleLine = true
-                        )
-                        TextField(
-                            value = catOrigin,
-                            onValueChange = { catOrigin = it },
-                            label = { Text("Origin") },
-                            singleLine = true
-                        )
-                        TextField(
-                            value = catLifeExpectancy,
-                            onValueChange = { catLifeExpectancy = it },
-                            label = { Text("Life Expectancy") },
-                            singleLine = true
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(onClick = {
-                            viewModel.updateAndRefreshCat(
-                                catName = catName,
-                                catBreed = catBreed,
-                                catTemperament = catTemperament,
-                                catOrigin = catOrigin,
-                                catLifeExpectancy = catLifeExpectancy
-                            )
-                        showDialog = false
-                        onNavigateToOverview()
-                    }) {
-                        Text("Confirm")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { showDialog = false }) {
-                        Text("Cancel")
+            when (val state = uiState) {
+                is DetailViewModel.DetailsUiState.Loading -> {
+                    OverviewUI.LoadingScreen("Loading Cat Details...")
+                }
+                is DetailViewModel.DetailsUiState.Content -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(innerPadding)
+                    ) {
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .padding(top = 16.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                AsyncImage(
+                                    model = state.cat.imageUrl,
+                                    contentDescription = "Image from URL",
+                                    modifier = Modifier
+                                        .height(300.dp)
+                                        .fillMaxWidth(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                        item { Text("Name: ${state.cat.name}") }
+                        item { Text("Breed: ${state.cat.breed}") }
+                        item { Text("Temperament: ${state.cat.temperament}") }
+                        item { Text("Origin: ${state.cat.origin}") }
+                        item { Text("Life Expectancy: ${state.cat.lifeExpectancy}") }
+                        item { DisplayQRCodeLink(qrCodeFilePath = state.cat.qrCodePath, context = context ) }
+                        item { DisplayQRCode(qrCodeImage = state.cat.qrCodeByteArray) }
                     }
                 }
-            )
-        }
-    }
-
-   @Composable
-fun DisplayCatDetails(
-    viewModel: DetailViewModel,
-    context: Context,
-    innerPadding: PaddingValues
-) {
-    val cat = viewModel.cat
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(innerPadding)
-    ) {
-        item {
-            Card(
-                modifier = Modifier
-                    .padding(top = 16.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                AsyncImage(
-                    model = cat?.imageUrl,
-                    contentDescription = "Image from URL",
-                    modifier = Modifier
-                        .height(300.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop
-                )
+                is DetailViewModel.DetailsUiState.Edit -> {
+                    AlertDialog(
+                        onDismissRequest = { viewModel.catEditFlow.value = false },
+                        title = { Text("Edit Cat") },
+                        text = {
+                            Column {
+                                TextField(
+                                    value = catName,
+                                    onValueChange = state.onEditName,
+                                    label = { Text("Name") },
+                                    singleLine = true
+                                )
+                                TextField(
+                                    value = catBreed,
+                                    onValueChange = state.onEditBreed,
+                                    label = { Text("Breed") },
+                                    singleLine = true
+                                )
+                                TextField(
+                                    value = catTemperament,
+                                    onValueChange = state.onEditTemperament,
+                                    label = { Text("Temperament") },
+                                    singleLine = true
+                                )
+                                TextField(
+                                    value = catOrigin,
+                                    onValueChange = state.onEditOrigin,
+                                    label = { Text("Origin") },
+                                    singleLine = true
+                                )
+                                TextField(
+                                    value = catLifeExpectancy,
+                                    onValueChange = state.onEditLifeExpectancy,
+                                    label = { Text("Life Expectancy") },
+                                    singleLine = true
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = state.onSaveChanges) {
+                                Text("Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { viewModel.catEditFlow.value = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                }
             }
         }
-        item { Text("Name: ${cat?.name}") }
-        item { Text("Breed: ${cat?.breed}") }
-        item { Text("Temperament: ${cat?.temperament}") }
-        item { Text("Origin: ${cat?.origin}") }
-        item { Text("Life Expectancy: ${cat?.lifeExpectancy}") }
-        item { cat?.let { DisplayQRCodeLink(qrCodeFilePath = it.qrCodePath, context = context ) } }
-        item { cat?.let { DisplayQRCode(qrCodeImage = it.qrCodeByteArray) } }
     }
-}
-
 
     @Composable
     fun DisplayQRCodeLink(qrCodeFilePath: String, context: Context) {

@@ -21,7 +21,7 @@ interface CatDao {
     fun getAll(): List<Cat>
 
     @Query("SELECT * FROM cat WHERE id = :id")
-    fun getCatByIdFlow(id: UUID): Flow<Cat?>
+    fun getCatByIdFlow(id: UUID): Flow<Cat>
 
     @Query("SELECT * FROM cat WHERE id = :id")
     fun getCatByIdUUID(id: UUID): Cat
