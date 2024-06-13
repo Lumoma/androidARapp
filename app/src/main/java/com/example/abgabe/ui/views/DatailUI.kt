@@ -77,7 +77,8 @@ fun DetailScreen(
     @Composable
     fun ErrorScreen(innerPadding: PaddingValues) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -96,11 +97,6 @@ fun DetailScreen(
         context: Context,
     ){
         val showDialog by viewModel.catEditFlow.collectAsState()
-        val catName by viewModel.catNameFlow.collectAsState()
-        val catBreed by viewModel.catBreedFlow.collectAsState()
-        val catTemperament by viewModel.catTemperamentFlow.collectAsState()
-        val catOrigin by viewModel.catOriginFlow.collectAsState()
-        val catLifeExpectancy by viewModel.catLifeExpectancyFlow.collectAsState()
 
         Scaffold(
             topBar = {
@@ -110,7 +106,7 @@ fun DetailScreen(
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                     title = {
-                            Text(catName, maxLines = 1, overflow = TextOverflow.Clip)
+                            Text( "Detail View", maxLines = 1, overflow = TextOverflow.Clip)
                     },
                     navigationIcon = {
                         IconButton(onClick = { onNavigateToOverview() }) {
@@ -125,7 +121,8 @@ fun DetailScreen(
             bottomBar = {
                 BottomAppBar {
                     Row(
-                        Modifier.fillMaxWidth()
+                        Modifier
+                            .fillMaxWidth()
                             .padding(10.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
@@ -181,38 +178,44 @@ fun DetailScreen(
                     }
                 }
                 is DetailViewModel.DetailsUiState.Edit -> {
+                    var name by remember { mutableStateOf(state.editCat.name) }
+                    var breed by remember { mutableStateOf(state.editCat.breed) }
+                    var temperament by remember { mutableStateOf(state.editCat.temperament) }
+                    var origin by remember { mutableStateOf(state.editCat.origin) }
+                    var lifeExpectancy by remember { mutableStateOf(state.editCat.lifeExpectancy) }
+
                     AlertDialog(
                         onDismissRequest = { viewModel.catEditFlow.value = false },
                         title = { Text("Edit Cat") },
                         text = {
                             Column {
                                 TextField(
-                                    value = catName,
-                                    onValueChange = state.onEditName,
+                                    value = name,
+                                    onValueChange = { name = it; state.onEditName(it)},
                                     label = { Text("Name") },
                                     singleLine = true
                                 )
                                 TextField(
-                                    value = catBreed,
-                                    onValueChange = state.onEditBreed,
+                                    value = breed,
+                                    onValueChange = { breed = it; state.onEditBreed(it)},
                                     label = { Text("Breed") },
                                     singleLine = true
                                 )
                                 TextField(
-                                    value = catTemperament,
-                                    onValueChange = state.onEditTemperament,
+                                    value = temperament,
+                                    onValueChange = { temperament = it; state.onEditTemperament(it)},
                                     label = { Text("Temperament") },
                                     singleLine = true
                                 )
                                 TextField(
-                                    value = catOrigin,
-                                    onValueChange = state.onEditOrigin,
+                                    value = origin,
+                                    onValueChange = { origin = it; state.onEditOrigin(it)},
                                     label = { Text("Origin") },
                                     singleLine = true
                                 )
                                 TextField(
-                                    value = catLifeExpectancy,
-                                    onValueChange = state.onEditLifeExpectancy,
+                                    value = lifeExpectancy,
+                                    onValueChange = { lifeExpectancy = it; state.onEditLifeExpectancy(it)},
                                     label = { Text("Life Expectancy") },
                                     singleLine = true
                                 )

@@ -31,19 +31,11 @@ class DetailViewModel @Inject constructor(
 
     val catEditFlow = MutableStateFlow(false)
 
-    // Cat properties
-    val catNameFlow = MutableStateFlow("")
-    val catBreedFlow = MutableStateFlow("")
-    val catTemperamentFlow = MutableStateFlow("")
-    val catOriginFlow = MutableStateFlow("")
-    val catLifeExpectancyFlow = MutableStateFlow("")
-
-
     sealed interface DetailsUiState {
         data object Loading : DetailsUiState
 
         data class Edit(
-            val cat: Cat,
+            val editCat: Cat,
             val onSaveChanges: () -> Unit,
             val onEditName: (String) -> Unit,
             val onEditBreed: (String) -> Unit,
@@ -53,6 +45,8 @@ class DetailViewModel @Inject constructor(
         ) : DetailsUiState
         data class Content(val cat: Cat, val onEdit: () -> Unit) : DetailsUiState
     }
+
+   private lateinit var catEdited: Cat
 
     private val catIdFlow = MutableStateFlow<UUID?>(null)
 
@@ -66,13 +60,13 @@ class DetailViewModel @Inject constructor(
         when{
             cat == null -> DetailsUiState.Loading
             catEdit -> DetailsUiState.Edit(
-                cat = cat,
-                onSaveChanges = { viewModelScope.launch { updateAndRefreshCat() } ; catEditFlow.value = false },
-                onEditName = { catNameFlow.value = it },
-                onEditBreed = { catBreedFlow.value = it },
-                onEditTemperament = { catTemperamentFlow.value = it },
-                onEditOrigin = { catOriginFlow.value = it },
-                onEditLifeExpectancy = { catLifeExpectancyFlow.value = it },
+                editCat = cat,
+                onSaveChanges = { viewModelScope.launch { updateCat(catEdited) } ; catEditFlow.value = false },
+                onEditName = { catEdited = cat.copy(name = it) },
+                onEditBreed = { catEdited = cat.copy(breed = it) },
+                onEditTemperament = { catEdited = cat.copy(temperament = it) },
+                onEditOrigin = { catEdited = cat.copy(origin = it) },
+                onEditLifeExpectancy = { catEdited = cat.copy(lifeExpectancy = it) }
             )
             else -> DetailsUiState.Content(cat, onEdit = { catEditFlow.value = true })
         }
@@ -97,26 +91,7 @@ class DetailViewModel @Inject constructor(
     }
 
     fun openEditWindow() {
-        val cat = (uiState.value as? DetailsUiState.Content)?.cat ?: return
-        catNameFlow.value = cat.name
-        catBreedFlow.value = cat.breed
-        catTemperamentFlow.value = cat.temperament
-        catOriginFlow.value = cat.origin
-        catLifeExpectancyFlow.value = cat.lifeExpectancy
+        catEdited = (uiState.value as? DetailsUiState.Content)?.cat ?: return
         catEditFlow.value = true
-    }
-
-    private fun updateAndRefreshCat() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                (uiState.value as? DetailsUiState.Content)?.cat?.copy(
-                    name = catNameFlow.value,
-                    breed = catBreedFlow.value,
-                    temperament = catTemperamentFlow.value,
-                    origin = catOriginFlow.value,
-                    lifeExpectancy = catLifeExpectancyFlow.value
-                )?.let { updateCat(it) }
-            }
-        }
     }
 }
