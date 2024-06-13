@@ -84,9 +84,9 @@ object OverviewUI {
                 )
             },
             bottomBar = {
-               if ( uiState is OverviewUiState.Content){
-                        HandleBottomBarOverview(onAddNewCat = { viewModel.showAddCat() })
-               }
+                if (uiState is OverviewUiState.Content){
+                    HandleBottomBarOverview( onOpenAddNewCatScreen = { viewModel.addCatToggle.value = true })
+                }
             },
         ) { innerPadding ->
             Box(
@@ -113,11 +113,9 @@ object OverviewUI {
                     is OverviewUiState.AddCat -> {
                         AddNewCatScreen(
                             onGenerateNewPictureURL = onGenerateNewPictureURL,
-                            randomCatPictureUrl =uiState.pictureUrl,
-                            onBackToOverview = { viewModel.loadCats() },
-                            onSaveNewCat = { cat ->
-                                viewModel.addCatToDatabase(cat, context)
-                            },
+                            randomCatPictureUrl = uiState.pictureUrl,
+                            onBackToOverview = { viewModel.addCatToggle.value = false },
+                            onSaveNewCat = uiState.onSaveCat,
                         )
                     }
                 }
@@ -161,11 +159,13 @@ object OverviewUI {
     }
 
     @Composable
-    fun HandleBottomBarOverview(onAddNewCat: () -> Unit){
+    fun HandleBottomBarOverview(
+        onOpenAddNewCatScreen: () -> Unit
+    ){
         BottomAppBar(
             actions = {},
             floatingActionButton = {
-                FloatingActionButton(onClick = { onAddNewCat() }) {
+                FloatingActionButton(onClick = { onOpenAddNewCatScreen() }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             },
