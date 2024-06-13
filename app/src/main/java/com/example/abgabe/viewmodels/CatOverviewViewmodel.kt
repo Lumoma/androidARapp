@@ -49,6 +49,7 @@ class OverviewViewModel @Inject constructor(
                     }
                 }
             )
+            cats.isEmpty() -> OverviewUiState.EmptyDatabase
             else -> OverviewUiState.Content(
                 cats = cats,
                 onAddCat = {

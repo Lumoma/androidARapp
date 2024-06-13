@@ -65,7 +65,6 @@ import java.util.UUID
 
 object OverviewUI {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun OverviewScreen(
         viewModel: OverviewViewModel,
@@ -74,7 +73,6 @@ object OverviewUI {
         onNavigateToSettings: () -> Unit,
         onNavigateToDetail: (String) -> Unit,
         onGenerateNewPictureURL: () -> Unit,
-        context: Context,
     ) {
         Scaffold(
             topBar = {

@@ -75,7 +75,6 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToSettings = { navController.navigate("Settings") },
                                 onNavigateToDetail = { id -> navController.navigate("Detail/$id") },
                                 onGenerateNewPictureURL = { homeScreenViewModel.uiState.value.let { if (it is OverviewUiState.AddCat) it.generateNewPictureURL() } },
-                                context = this@MainActivity
                             )
                         }
                         composable("QR") {
