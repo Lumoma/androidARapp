@@ -81,25 +81,29 @@ class MainActivity : ComponentActivity() {
                         composable("QR") {
                             QrCodeScannerScreen(
                                 viewModel = qrCodeScannerViewModel,
-                                onCatFound = {
-                                        id -> navController.navigate("Detail/$id")
-                                },
-                                onNavigateToOverview = {
-                                    navController.navigate("Overview")
-                                }
+                                onCatFound = { id -> navController.navigate("Detail/$id") },
+                                onNavigateToOverview = { navController.navigate("Overview") }
                             )
                         }
                         composable("Settings") {
                             val uiState by settingsViewModel.uiState.collectAsState()
-                            SettingsUI.SettingsScreen(viewModel = settingsViewModel, uiState = uiState, onNavigateToOverview = {
-                                navController.navigate("Overview")
-                            }, context = this@MainActivity)
+                            SettingsUI.SettingsScreen(
+                                viewModel = settingsViewModel,
+                                uiState = uiState,
+                                onNavigateToOverview = { navController.navigate("Overview") },
+                                context = this@MainActivity
+                            )
                         }
                         composable("Detail/{id}") {
                             val id = navController.currentBackStackEntry?.arguments?.getString("id")
-                            DetailUI.DetailScreen( viewModel = detailScreenViewModel, context = this@MainActivity, id = id, onNavigateToOverview = {
-                                navController.navigate("Overview")
-                            })
+                            val uiState by detailScreenViewModel.uiState.collectAsState()
+                            DetailUI.DetailScreen(
+                                viewModel = detailScreenViewModel,
+                                uiState = uiState,
+                                id = id,
+                                onNavigateToOverview = { navController.navigate("Overview")} ,
+                                context = this@MainActivity
+                            )
                         }
                     }
                 }

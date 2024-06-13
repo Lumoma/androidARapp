@@ -7,10 +7,7 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,67 +34,49 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.abgabe.data.local.Cat
+import com.example.abgabe.ui.states.DetailUiState
 import com.example.abgabe.viewmodels.DetailViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object DetailUI {
-
     @Composable
-fun DetailScreen(
-    viewModel: DetailViewModel, // Pass the ViewModel as a parameter
-    context: Context,
-    id: String?,
-    onNavigateToOverview: () -> Unit,
-) {
-    val coroutineScope = rememberCoroutineScope()
+    fun DetailScreen(
+        viewModel: DetailViewModel,
+        uiState: DetailUiState,
+        id: String?,
+        onNavigateToOverview: () -> Unit,
+        context: Context,
+    ) {
+        val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = id) {
-        coroutineScope.launch(Dispatchers.IO) {
-            viewModel.setCatId(id ?: return@launch)
+        LaunchedEffect(key1 = id) {
+            coroutineScope.launch(Dispatchers.IO) {
+                viewModel.setCatId(id ?: return@launch)
+            }
         }
-    }
-        ContentScreen(viewModel, onNavigateToOverview, context = context)
-}
-
-    @Composable
-    fun ErrorScreen(innerPadding: PaddingValues) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-            Text("Cat not found.")
-            Text("Scan another QR code.")
-            Spacer(modifier = Modifier.weight(1f))
-        }
+            ContentScreen(viewModel, uiState, onNavigateToOverview, context)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
-@Composable
+    @Composable
     fun ContentScreen(
         viewModel: DetailViewModel,
+        uiState: DetailUiState,
         onNavigateToOverview: () -> Unit,
         context: Context,
     ){
-        val showDialog by viewModel.catEditFlow.collectAsState()
-
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -129,7 +108,9 @@ fun DetailScreen(
                         FloatingActionButton(onClick = {viewModel.openEditWindow()}) {
                             Icon(Icons.Default.Edit, contentDescription = "Add")
                         }
-                        FloatingActionButton(onClick = {
+                        FloatingActionButton(
+                            modifier = Modifier.padding(start = 10.dp),
+                            onClick = {
                             onNavigateToOverview()
                             viewModel.deleteCatFromDatabase()
                         }) {
@@ -139,13 +120,11 @@ fun DetailScreen(
                 }
             },
         ) { innerPadding ->
-            val uiState by viewModel.uiState.collectAsState()
-
             when (val state = uiState) {
-                is DetailViewModel.DetailsUiState.Loading -> {
+                is DetailUiState.Loading -> {
                     OverviewUI.LoadingScreen("Loading Cat Details...")
                 }
-                is DetailViewModel.DetailsUiState.Content -> {
+                is DetailUiState.Content -> {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -177,7 +156,7 @@ fun DetailScreen(
                         item { DisplayQRCode(qrCodeImage = state.cat.qrCodeByteArray) }
                     }
                 }
-                is DetailViewModel.DetailsUiState.Edit -> {
+                is DetailUiState.Edit -> {
                     var name by remember { mutableStateOf(state.editCat.name) }
                     var breed by remember { mutableStateOf(state.editCat.breed) }
                     var temperament by remember { mutableStateOf(state.editCat.temperament) }
