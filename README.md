@@ -6,7 +6,7 @@ This native Android app was created as a practical assignment for the course "De
 
 *   **Programming Languages:** Primarily Kotlin, with some unused Java components.
 *   **Build System:** Gradle
-*   **Development Environment:** Android Studio Jellyfish | 2023.3.31 Patch 1
+*   **Development Environment:** Android Studio Jellyfish | 2023.3.31 Patch 2
 *   **Tested Devices:**
     *   Google Pixel 5 (Android 14.0, API 34-ext12)
     *   Virtual Pixel 7 Pro (Android 14.0, API 34)
