@@ -19,6 +19,6 @@ This native Android app was created as a practical assignment for the course "De
     *   Alternatively, use the provided API keys.
 3.  **Start:** Run the app on a physical Android device or an Android/iOS simulator.
 
-## GitHub Link
+## Screenshots
 
-[https://github.com/Lumoma/androidARapp/tree/master](https://github.com/Lumoma/androidARapp/tree/master)
+<table> <tr> <td><img src="docs/images/Screenshot_1.png" alt="1" style="max-width:250px;height:auto"></td> <td><img src="docs/images/Screenshot_2.png" alt="2" style="max-width:250px;height:auto"></td> </tr> <tr> <td><img src="docs/images/Screenshot_3.png" alt="3" style="max-width:250px;height:auto"></td> <td><img src="docs/images/Screenshot_4.png" alt="4" style="max-width:250px;height:auto"></td> </tr> </table>
